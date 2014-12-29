@@ -13,7 +13,8 @@ div.article > *:first-child {margin-top: 0; }
 div.article p {line-height: 1.1em; margin: 0.3em 0 0.5em; }
 div.article h1 {margin: 0; font-size: 24px; }
 
-#numberpad {padding: 2px; background: #000; height: 110px; position: fixed; bottom: 10px; }
+/* Worry about the numberpad after the main work is done Mr. Feature-creep */
+#numberpad {padding: 2px; background: #000; height: 110px; position: fixed; bottom: 10px; display: none; }
 #numberpad button {font-family: monospace; width: 35px; text-align: center; }
 
 #paper {padding: 1em; font: 16px monospace; border: 2px solid #666; border-radius: 4px; }
@@ -23,12 +24,36 @@ div.article h1 {margin: 0; font-size: 24px; }
 #paper > div span.operand:hover {color: blue; }
 #paper div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
 #paper div.new {height: 1em; }
+
+span.cursorOn {border-right: 1px solid #000; }
+span.cursorOff {border-right: 1px solid #fff; }
 </style>
 
 <body>
 <div class="article">
 <h1>Sketchpad Calculator</h1>
-<p>This calculator UI is designed after how one might do quick calculations on a sheet of paper. Included numberpad is for touch screens - otherwise a keyboard is the best input source.
+<p>This calculator UI is designed after how a person might intuitively do quick calculations on a sheet of paper.
+<!-- Included numberpad is for touch screens - otherwise a keyboard is the best input source.-->
+
+<p>Round to 
+<select id="sigFigs">
+<option value="" selected="selected">vulgar
+<option value="0">proper
+<option value="2">2
+<option value="3">3
+<option value="4">4
+<option value="5">5
+<option value="6">6
+<option value="7">7
+<option value="8">8
+<option value="9">9
+<option value="10">10
+<option value="11">11
+<option value="12">12
+<option value="13">13
+<option value="14">14
+</select> 
+significant figures. (Maximum 14.)
 
 <div id="numberpad">
     <button type="button" class="operand">7</button
@@ -59,29 +84,54 @@ div.article h1 {margin: 0; font-size: 24px; }
 /*
 Bugs:
 
-key in Chrome
+There is some weirdness involving proper focus (changing precision instead of entering numbers)
 
-Would like to add:
+Features:
 
-blinking cursor on operand line
 backspace
 equals line a more reasonable length
-no operator if an operand isn't present
-check for negative numbers
-check for multiple decimal points
-sig figs
-
+input scientific notation
+exponent, square root, log, natural log, etc.
 */
-var activeRow = 0,
+var activeRow = {index: 0, type: 'operand'},
     paper = document.getElementById('paper'),
     justCalculated = false,
+    blinkId,
+    blinkerOn = true,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
     operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''};
 
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function makeRow() {
     var row = document.createElement('div');
-    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span class="cursor"></span>';
+    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span class="cursorOff"></span>';
     return row;
+}
+
+function getSpans(rowIndex) {
+    rowIndex = rowIndex || activeRow.index;
+    return paper.getElementsByTagName('div')[rowIndex].getElementsByTagName('span');
+}
+
+function addRow(className, operatorValue, operandValue) {
+    var newRow = makeRow();
+    className = className || '';
+
+    window.clearTimeout(blinkId);
+    getSpans()[2].className = 'cursorOff';
+    newRow.className = className;
+    if (operatorValue) {
+        newRow.getElementsByTagName('span')[0].innerHTML = operatorValue;
+    }
+    if (operandValue) {
+        newRow.getElementsByTagName('span')[1].innerHTML = operandValue;
+    }
+    paper.appendChild(newRow);
+    activeRow.index = activeRow.index + 1;
+    cursorBlink(true);
 }
 
 function addEvent(el, evType, fn, bubble) {
@@ -93,99 +143,159 @@ function addEvent(el, evType, fn, bubble) {
     }
 }
 
+function countSigFigs(num) {
+    // remove decimal and negative signs
+    num = num.replace(/[\-\.]/g, '');
+    // remove exponents
+    num = num.replace(/e[+\-].$/g, '');
+    // trim leading zeros
+    num = num.replace(/^0*/g, '');
+
+    return num.length;
+}
+
+function toVulgar(num) {
+    var formattedNum = num.toPrecision(14).toString(10);
+    // remove trailing zeros
+    formattedNum = formattedNum.replace(/0*$/g, '');
+    // there might be a decimal at the end
+    if (formattedNum.slice(-1) === '.') {
+        formattedNum = formattedNum.slice(0, -1);
+    }
+    return formattedNum;
+}
+
 function calculateRecent() {
     // gonna eval it! NOOOOOOO! I'll fix this later...
     var rows = paper.getElementsByTagName('div'),
         calcString = '',
-        searchRow = activeRow - 1,
-        spans;
-        //firstRow = true;
+        searchRow = activeRow.index - 1,
+        spans,
+        sigFigsVal = document.getElementById('sigFigs').value,
+        sigFig = 0,
+        sigFigs = 0;
 
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
         spans = rows[searchRow].getElementsByTagName('span');
+        sigFig = countSigFigs(spans[1].innerHTML);
+        if (sigFigs === 0 || sigFig < sigFigs) {
+            sigFigs = sigFig;
+        }
         calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
         searchRow = searchRow - 1;
     }
-    console.log(calcString);
 
-    return eval(calcString);
+    if (sigFigsVal === '') {
+        return toVulgar(eval(calcString));
+    }
+
+    if (sigFigsVal === '0') {
+        sigFigsVal = sigFigs;
+    }
+    return eval(calcString).toPrecision(+sigFigsVal);
 }
 
 function enterOperand(digit, replace) {
-    var newRow, rows = paper.getElementsByTagName('div'), spans;
+    var spans, newNumber;
+    spans = getSpans();
+
+    // Make sure its a legit number
+    if (replace || justCalculated) {
+        newNumber = digit;
+    } else {
+        newNumber = spans[1].innerHTML + digit;
+    }
+
+    if (newNumber !== '-' && newNumber !== '-.' && newNumber !== '.') {
+        if (!isNumber(newNumber)) {
+            return;
+        }
+    }
+
     if (justCalculated) {
         justCalculated = false;
-        newRow = makeRow();
-        newRow.className = 'new';
-        paper.appendChild(newRow);
-        activeRow = activeRow + 1;
-        paper.appendChild(makeRow());
-        activeRow = activeRow + 1;
+        addRow('new');
+        addRow();
+        spans = getSpans();
     }
-    spans = rows[activeRow].getElementsByTagName('span');
-    if (replace) {
-        spans[1].innerHTML = digit;
-    } else {
-        spans[1].innerHTML = spans[1].innerHTML + digit;
-    }
+
+    spans[1].innerHTML = newNumber;
 }
 
 function enterOperator(symbol) {
-    var newRow;
-    justCalculated = false;
-    newRow = makeRow();
-    newRow.getElementsByTagName('span')[0].innerHTML = operators[symbol];
-    paper.appendChild(newRow);
-    activeRow = activeRow + 1;
-}
+    var spans = getSpans();
 
-function hitEquals() {
-    var newRow;
-
-    // if just calculated, start a new row
-    if (justCalculated) {
-        justCalculated = false;
-        newRow = makeRow();
-        newRow.className = 'new';
-        paper.appendChild(newRow);
-        activeRow = activeRow + 1;
-        paper.appendChild(makeRow());
-        activeRow = activeRow + 1;
+    // If there is no number above or on it, exit.
+    if (!spans[1].innerHTML && (activeRow.index === 0 || !getSpans(activeRow.index - 1)[1].innerHTML)) {
+        return;
+    }
+    // Or if the number above is possibly, but not yet, legit.
+    if (spans[1].innerHTML === '-' || spans[1].innerHTML === '.' || spans[1].innerHTML === '-.') {
         return;
     }
 
-    if (paper.getElementsByTagName('div')[activeRow].getElementsByTagName('span')[1].innerHTML) {
-        newRow = makeRow();
-        newRow.className = 'equals';
-        paper.appendChild(newRow);
-        activeRow = activeRow + 1;
+    justCalculated = false;
 
-        newRow = makeRow();
-        newRow.getElementsByTagName('span')[1].innerHTML = calculateRecent();
-        paper.appendChild(newRow);
+    // if there is already an operator on the active row, replace it
+    if (spans[0].innerHTML && !spans[1].innerHTML) {
+        spans[0].innerHTML = operators[symbol];
+    } else {
+        addRow('', operators[symbol]);
+    }
+}
+
+function hitEquals() {
+    // if just calculated, start a new row
+    if (justCalculated) {
+        justCalculated = false;
+        addRow('new');
+        addRow();
+        return;
+    }
+
+    if (getSpans()[1].innerHTML) {
+        addRow('equals');
+        addRow('', '', calculateRecent());
         justCalculated = true;
-        activeRow = activeRow + 1;
     }
 }
 
 function keyenter(e) {
-    var key;
+    var key,
+        reOperand = /^[0-9\.]$/,
+        reOperator = /^[+*\/]$/,
+        spans;
 
     if (e.key) {
-        //console.log('e.key');
         key = e.key;
     } else {
-        //console.log(String.fromCharCode(e.keyCode));
         key = String.fromCharCode(e.keyCode);
     }
 
-    //console.log(e.keyCode);
-    console.log(e);
-    var reOperand = /^[0-9\.]$/,
-        reOperator = /^[\-+*\/]$/;
-        //rows = paper.getElementsByTagName('div'),
-        //newRow,
-        //operatorChar = '';
+    // [-] matches both number and operator
+    if (key === '-') {
+        spans = getSpans();
+        // a minus sign alone (or other weird things like -.) is not a legit number
+        // Should this validation go here? Probably not.
+        if (spans[1].innerHTML === '-' || spans[1].innerHTML === '.' || spans[1].innerHTML === '-.') {
+            return;
+        }
+        // if there is a number, treat as operator
+        if (spans[1].innerHTML) {
+            enterOperator(key);
+            return;
+        }
+        // if there is an operator, and there is no current number, treat as number
+        if (spans[0].innerHTML && !spans[1].innerHTML) {
+            enterOperand(key);
+            return;
+        }
+        // if there is no operator yet, and there is a number above, it is an operator
+        if (activeRow.index === 0 || !getSpans(activeRow.index - 1)[1].innerHTML) {
+            enterOperand(key);
+            return;
+        }
+    }
 
     // Operator
     if (key.match(reOperator)) {
@@ -196,45 +306,60 @@ function keyenter(e) {
     // Number
     if (key.match(reOperand)) {
         enterOperand(key);
+        return;
     }
 
     // Calculate
     if (e.keyCode === 13 || e.keyCode === 61) {
+        spans = getSpans();
+        if (!isNumber(spans[1].innerHTML)) {
+            return;
+        }
         hitEquals();
     }
 }
 
 function addNumber(e) {
-    var className, tagName;
-
-    if (e.target) {
-        className = e.target.className;
-        tagName = e.target.tagName;
-    } else {
-        className = e.srcElement.className;
-        tagName = e.srcElement.tagName;
-    }
+    var el = (e.target) ? e.target : e.srcElement,
+        className = el.className,
+        tagName = el.tagName;
 
     if (className === 'operand') {
-        enterOperand(e.target.innerHTML, (tagName !== 'BUTTON'));
+        enterOperand(el.innerHTML, (tagName !== 'BUTTON'));
     }
-    if (className === 'operator') {
-        enterOperator(e.target.innerHTML, (tagName !== 'BUTTON'));
-    }
-    if (className === 'equals') {
-        hitEquals();
-    }
+    // From old numberpad UI
+    //if (className === 'operator') {
+    //    enterOperator(el.innerHTML, (tagName !== 'BUTTON'));
+    //}
+    //}
+    //if (className === 'equals' && tagName === 'BUTTON') {
+    //    hitEquals();
+    //}
 }
 
-// Stop quick search in Firefox
 addEvent(document.getElementsByTagName('body')[0], 'keydown', function (e) {
-    if (e.key === '/' || e.keyCode === 8) {
+    // Stop quick search in Firefox
+    if (e.key === '/') {
+        enterOperator('/');
+        e.preventDefault();
+    }
+    // Prevent backspace from acting like the back button
+    if (e.keyCode === 8) {
         e.preventDefault();
     }
 });
 
 addEvent(document.getElementsByTagName('body')[0], 'keypress', keyenter);
 addEvent(paper, 'click', addNumber);
-addEvent(document.getElementById('numberpad'), 'click', addNumber);
+//addEvent(document.getElementById('numberpad'), 'click', addNumber);
 paper.appendChild(makeRow());
+
+function cursorBlink(resetBlink) {
+    var cursorSpan = paper.getElementsByTagName('div')[activeRow.index].getElementsByTagName('span')[2];
+
+    blinkerOn = (resetBlink) ? 'cursorOn' : !blinkerOn;
+    cursorSpan.className = (blinkerOn) ? 'cursorOn' : 'cursorOff';
+    blinkId = window.setTimeout(cursorBlink, 600);
+}
+cursorBlink(true);
 </script>
