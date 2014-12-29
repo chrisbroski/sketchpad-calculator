@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="IE=Edge">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<title>Sketchpad Calculator</title>
+<style>
+html {padding: 10px 10px 200px; font-family: droid sans, sans-serif; }
+body {margin: 0 auto; max-width: 580px; }
+div.article {position: relative; }
+div.article > *:first-child {margin-top: 0; }
+div.article p {line-height: 1.1em; margin: 0.3em 0 0.5em; }
+div.article h1 {margin: 0; font-size: 24px; }
+
+#numberpad {padding: 2px; background: #000; height: 110px; position: fixed; bottom: 10px; }
+#numberpad button {font-family: monospace; width: 35px; text-align: center; }
+
+#paper {padding: 1em; font: 16px monospace; border: 2px solid #666; border-radius: 4px; }
+#paper > div {text-align: right; }
+#paper > div span.operator {padding-right: 1em;}
+#paper > div span.operand {cursor: pointer; }
+#paper > div span.operand:hover {color: blue; }
+#paper div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
+#paper div.new {height: 1em; }
+</style>
+
+<body>
+<div class="article">
+<h1>Sketchpad Calculator</h1>
+<p>This calculator UI is designed after how one might do quick calculations on a sheet of paper. Included numberpad is for touch screens - otherwise a keyboard is the best input source.
+
+<div id="numberpad">
+    <button type="button" class="operand">7</button
+    ><button type="button" class="operand">8</button
+    ><button type="button" class="operand">9</button
+    ><button type="button" class="operator">+</button><br>
+
+    <button type="button" class="operand">4</button
+    ><button type="button" class="operand">5</button
+    ><button type="button" class="operand">6</button
+    ><button type="button" class="operator">-</button><br>
+
+    <button type="button" class="operand">1</button
+    ><button type="button" class="operand">2</button
+    ><button type="button" class="operand">3</button
+    ><button type="button" class="operator">*</button><br>
+
+    <button type="button" class="operand">0</button
+    ><button type="button" class="operand">.</button
+    ><button type="button" class="equals">=</button
+    ><button type="button" class="operator">/</button>
+</div>
+
+<div id="paper"></div>
+</div>
+
+<script>
+/*
+Bugs:
+
+key in Chrome
+
+Would like to add:
+
+blinking cursor on operand line
+backspace
+equals line a more reasonable length
+no operator if an operand isn't present
+check for negative numbers
+check for multiple decimal points
+sig figs
+
+*/
+var activeRow = 0,
+    paper = document.getElementById('paper'),
+    justCalculated = false,
+    operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
+    operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''};
+
+function makeRow() {
+    var row = document.createElement('div');
+    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span class="cursor"></span>';
+    return row;
+}
+
+function addEvent(el, evType, fn, bubble) {
+    bubble = bubble || false;
+    if (el.addEventListener) {
+        el.addEventListener(evType, fn, bubble);
+    } else if (el.attachEvent) {
+        el.attachEvent("on" + evType, fn);
+    }
+}
+
+function calculateRecent() {
+    // gonna eval it! NOOOOOOO! I'll fix this later...
+    var rows = paper.getElementsByTagName('div'),
+        calcString = '',
+        searchRow = activeRow - 1,
+        spans;
+        //firstRow = true;
+
+    while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
+        spans = rows[searchRow].getElementsByTagName('span');
+        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
+        searchRow = searchRow - 1;
+    }
+    console.log(calcString);
+
+    return eval(calcString);
+}
+
+function enterOperand(digit, replace) {
+    var newRow, rows = paper.getElementsByTagName('div'), spans;
+    if (justCalculated) {
+        justCalculated = false;
+        newRow = makeRow();
+        newRow.className = 'new';
+        paper.appendChild(newRow);
+        activeRow = activeRow + 1;
+        paper.appendChild(makeRow());
+        activeRow = activeRow + 1;
+    }
+    spans = rows[activeRow].getElementsByTagName('span');
+    if (replace) {
+        spans[1].innerHTML = digit;
+    } else {
+        spans[1].innerHTML = spans[1].innerHTML + digit;
+    }
+}
+
+function enterOperator(symbol) {
+    var newRow;
+    justCalculated = false;
+    newRow = makeRow();
+    newRow.getElementsByTagName('span')[0].innerHTML = operators[symbol];
+    paper.appendChild(newRow);
+    activeRow = activeRow + 1;
+}
+
+function hitEquals() {
+    var newRow;
+
+    // if just calculated, start a new row
+    if (justCalculated) {
+        justCalculated = false;
+        newRow = makeRow();
+        newRow.className = 'new';
+        paper.appendChild(newRow);
+        activeRow = activeRow + 1;
+        paper.appendChild(makeRow());
+        activeRow = activeRow + 1;
+        return;
+    }
+
+    if (paper.getElementsByTagName('div')[activeRow].getElementsByTagName('span')[1].innerHTML) {
+        newRow = makeRow();
+        newRow.className = 'equals';
+        paper.appendChild(newRow);
+        activeRow = activeRow + 1;
+
+        newRow = makeRow();
+        newRow.getElementsByTagName('span')[1].innerHTML = calculateRecent();
+        paper.appendChild(newRow);
+        justCalculated = true;
+        activeRow = activeRow + 1;
+    }
+}
+
+function keyenter(e) {
+    var key;
+
+    if (e.key) {
+        //console.log('e.key');
+        key = e.key;
+    } else {
+        //console.log(String.fromCharCode(e.keyCode));
+        key = String.fromCharCode(e.keyCode);
+    }
+
+    //console.log(e.keyCode);
+    console.log(e);
+    var reOperand = /^[0-9\.]$/,
+        reOperator = /^[\-+*\/]$/;
+        //rows = paper.getElementsByTagName('div'),
+        //newRow,
+        //operatorChar = '';
+
+    // Operator
+    if (key.match(reOperator)) {
+        enterOperator(key);
+        return;
+    }
+
+    // Number
+    if (key.match(reOperand)) {
+        enterOperand(key);
+    }
+
+    // Calculate
+    if (e.keyCode === 13 || e.keyCode === 61) {
+        hitEquals();
+    }
+}
+
+function addNumber(e) {
+    var className, tagName;
+
+    if (e.target) {
+        className = e.target.className;
+        tagName = e.target.tagName;
+    } else {
+        className = e.srcElement.className;
+        tagName = e.srcElement.tagName;
+    }
+
+    if (className === 'operand') {
+        enterOperand(e.target.innerHTML, (tagName !== 'BUTTON'));
+    }
+    if (className === 'operator') {
+        enterOperator(e.target.innerHTML, (tagName !== 'BUTTON'));
+    }
+    if (className === 'equals') {
+        hitEquals();
+    }
+}
+
+// Stop quick search in Firefox
+addEvent(document.getElementsByTagName('body')[0], 'keydown', function (e) {
+    if (e.key === '/' || e.keyCode === 8) {
+        e.preventDefault();
+    }
+});
+
+addEvent(document.getElementsByTagName('body')[0], 'keypress', keyenter);
+addEvent(paper, 'click', addNumber);
+addEvent(document.getElementById('numberpad'), 'click', addNumber);
+paper.appendChild(makeRow());
+</script>
