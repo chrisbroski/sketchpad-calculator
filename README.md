@@ -1,7 +1,7 @@
 Sketchpad Calculator
 ====================
 
-I was doing some quick math with a pencil and pad of paper the other day, then dug up a calculator on my phone to do some of the more complicated math and wondered why I needed to use both. When calculators and adding machines were developed, they were miracles of engineering. But the newness of the technology limited the user interface. We have grown up with using calculators how they were designed, by not asking if there is a better way.
+I was doing some quick math with a pencil and pad of paper the other day, then launched a calculator on my phone to do some of the more complicated calculations. This made me wonder why I needed to use both. When calculators were first developed, they were miracles of engineering. But the newness of the technology limited the user interface. We have grown up with using calculators how they were designed, by not asking if there is a better way.
 
 Now that building a fancy UI can be done by anyone with a web browser and text editor (and arithmetic is a core feature of any programming language) maybe it is time to revisit the design of this common UI to explore methods of making it more intuitive.
 
