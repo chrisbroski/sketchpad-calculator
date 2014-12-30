@@ -18,7 +18,7 @@ I wanted to build a software UI that mimics how a person might perform simple ca
 Development
 -----------
 
-If you'd like to just right to the wireframe prototype, it's on my github pages /sketchpad-calculator/sketchpad-calc.html But remember:
+If you'd like to just right to the wireframe prototype, it's on my [github pages](http://chrisbroski.github.io/sketchpad-calculator/sketchpad-calc.html) But remember:
 
 ###It's Buggy
 
@@ -29,15 +29,16 @@ It's a proof-of-concept meant for UI reserach and still far from a commercial pr
 I only wanted critical features, or ones that could be uniquely demonstrated in this type of UI. I chose:
 
 * Make number and operator entry as simple as possible with no extra buttons or keystrokes.
-* Fake cursor to indicate active area
+* No "order of operation" - calculations are made in top-to-bottom order only.
+* Fake cursor to indicate active area.
 * Manual entry using a keypad of a computer keyboard.
 * Operators for addition, subtraction, multiplication, and division only.
-* Allow positive, negative, and decimal numbers (no scientific notation entry)
-* Running history of all calculations in this session
+* Allow positive, negative, and decimal numbers (no scientific notation entry).
+* Running history of all calculations in this session.
 * Click on a number in history to use that number in the active calculation.
-* Specify the amount of precision for reasonable rounding
+* Specify the amount of precision for reasonable rounding.
 
-Most of these features are hopefully self-explanatory so I'll talk talk about a couple that I think deserve mention.
+Most of these features are hopefully self-explanatory so I'll only talk about a couple that I think deserve mention.
 
 ####Click History to Insert Into Active Calcuation
 
@@ -45,4 +46,6 @@ This is a fancy feature, and I had said that I wanted to keep it simple. I justi
 
 ####Custom Precision Rounding
 
-This is another thing that is significantly different than most other calculation software. 
+This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce are large amount of digits after the decimal that are nonsensical and hard to read. Also, with JavaScript converting numbers to floating-point you can get soem unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from Chemists it seems) understands how to use significant figures to determine the proper precision of a the final result.
+
+I'd like to say I solved this, but I can't say that, because I didn't. So instead, in the spirit of experimentation, I implemented a bunch of solutions. My favorite one (labelled "proper") keeps track of the number with the least amount of significant figures in the active calculation and then rounds to that precision. As much as it is "poper" is is awkward to work with. All result are foced to exponential notation and god forbid if you include a single-digit operand that dumps the rsult down to a single digit of precision. I included some fixed amounts of precision (2 through 14) that seems to work OK. Calculators have their own weird formatting rules that round indiscriminate of significant figures. I threw together something that works like that and labelled it "vulgar." I reluctantly admit that it gives the most intuitive results. At least I got to name it something derogatory, so that makes me feel a little better.
