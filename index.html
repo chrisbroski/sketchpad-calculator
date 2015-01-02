@@ -7,11 +7,16 @@
 <title>Sketchpad Calculator</title>
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
-/*body {margin: 0 auto; max-width: 580px; position: relative; }*/
-div.article {position: relative; }
-div.article > *:first-child {margin-top: 0; }
-div.article p {line-height: 1.1em; margin: 0.3em 0 0.5em; }
-div.article h1 {margin: 0; font-size: 24px; }
+h1 {margin: 0; font-size: 22px; width: 150px; }
+h2 {margin: 0; font-weight: normal; font-size: 14px; position: absolute; top: 10px; left: 160px; }
+
+#paper {font: 18px monospace; width: 152px;}
+#paper > div {text-align: right; }
+#paper > div span.operator {padding-right: 1em;}
+#paper > div span.operand {cursor: pointer; }
+#paper > div span.operand:hover {color: blue; }
+#paper div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
+#paper div.new {height: 1em; }
 
 #numberpad {
     margin: 0 0 0 162px; padding: 2px;
@@ -29,14 +34,6 @@ div.article h1 {margin: 0; font-size: 24px; }
 #numberpad .exponent {text-align: left; }
 #numberpad #zero {width: 97px; }
 
-#paper {font: 18px monospace; width: 152px;}
-#paper > div {text-align: right; }
-#paper > div span.operator {padding-right: 1em;}
-#paper > div span.operand {cursor: pointer; }
-#paper > div span.operand:hover {color: blue; }
-#paper div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
-#paper div.new {height: 1em; }
-
 span.cursorOn {border-right: 1px solid #000; }
 span.cursorOff {border-right: 1px solid #fff; }
 </style>
@@ -53,8 +50,6 @@ span.cursorOff {border-right: 1px solid #fff; }
     }
     #numberpad #zero {width: 66px; }
     #numberpad .exponent {font-size: 16px; }
-    
-    #paper {font: 15px monospace; width: 150px; }
 }
 </style>
 
@@ -62,9 +57,9 @@ span.cursorOff {border-right: 1px solid #fff; }
 <div class="article">
 <h1>Sketchpad Calculator</h1>
 
-<p>Round to 
+<h2>Round to 
 <select id="sigFigs">
-<option value="" selected="selected">vulgar
+<option value="" selected="selected">calc
 <option value="0">proper
 <option value="2">2
 <option value="3">3
@@ -72,7 +67,8 @@ span.cursorOff {border-right: 1px solid #fff; }
 <option value="5">5
 <option value="6">6
 </select> 
-significant digits.
+precision.
+</h2>
 
 <div id="numberpad-panel">
 <div id="numberpad">
@@ -110,13 +106,11 @@ significant digits.
 Bugs:
 
 There is some weirdness involving proper focus (changing precision instead of entering numbers)
+prevent backspace on calculated numbers
 
 Features:
 
 backspace through previous lines
-input scientific notation (e)
-
-vulgar rounding to remove tailing zeros in exponential notation
 
 */
 var activeRow = {index: 0, type: 'operand'},
