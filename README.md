@@ -28,13 +28,13 @@ It's a proof-of-concept meant for UI research and still far from a commercial pr
 
 I only wanted critical features, or ones that could be uniquely demonstrated in this type of UI. I chose:
 
-* Fake cursor to indicate active area.
-* Manual entry using a keypad of a computer keyboard.
+* Blinking indicator of active input area.
+* Manual entry using the keypad of a computer keyboard.
 * Operators for addition, subtraction, multiplication, and division only.
 * Allow positive, negative, and decimal numbers (no scientific notation entry).
-* Running history of all calculations in this session.
-* No "order of operation" - calculations are made in top-to-bottom order only.
-* Click on a number in history to use that number in the active calculation.
+* Running history of all calculations in the active and previous calculations.
+* No "order of operation" - calculations are executed in top-to-bottom order only.
+* Clicking on a number in history enters that number in the active calculation.
 * Specify the amount of precision for reasonable rounding.
 
 Most of these features are hopefully self-explanatory so I'll only talk about a couple that I think deserve mention.
@@ -68,4 +68,12 @@ This just looks weird and is a terrible use of screen space. Still, I feel that 
 Results
 -------
 
-It'd be great to get some unbiased feedback on the wireframe, but the unwashed public has been known to struggle without colored gradients, drop shadows, shiny buttons, and rounded corners. With only my opinion to go on, I do believe there is something there. I plan to take the next steps and see if this can develop into a useful productivity app. (That result is mostly dependant on my fight against procrastination so if you want to steal my idea for yourself, go for it.)
+Now that I have some experience with the prototype, I have formed tentative answers to my proposed questions.
+
+As for benefits over the traditional calculator UI, having the active and previous calcuations displayed is a blatant improvement. (One-click entry of previous numbers is nice too.)
+
+Inherent drawbacks (ones that can't be easily fixed with a little more work) are few. The inability to to proper order of operations is a big one, but if the intended purposed is for short, informal calculations this is probaby OK. You would want to use a different piece of software for performing more formal mathematics anyhow. The mess with precicion I can hopefully get a handle on, but there is no guarentee.
+
+As far as I can guess, adding backspace and mobile UI could make this a viable version 1.0.
+
+It'd be great to gather unbiased feedback on the wireframe, but the unwashed public has been known to struggle without colored gradients, drop shadows, shiny buttons, and rounded corners. With only my opinion to go on, I do believe there is something there. I plan to take the next steps and see if this can develop into a useful productivity app. (That result is mostly dependant on my fight against procrastination so if you want to steal my idea for yourself, go for it.)
