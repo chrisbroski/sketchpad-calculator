@@ -45,24 +45,21 @@ span.cursorOff {border-right: 1px solid #fff; }
 @media only screen and (max-width: 428px) {
     #numberpad {
         margin: 0 0 0 155px; 
-        width: 128px;
+        width: 137px;
     }
     #numberpad button {
         font-size: 18px;
-        width: 30px; height: 30px;
+        width: 32px; 
     }
-    #numberpad button.equals {height: 61px; }
-    #numberpad #zero {width: 61px; }
+    #numberpad #zero {width: 66px; }
     
-    #paper {font: 14px monospace; width: 150px; }
+    #paper {font: 15px monospace; width: 150px; }
 }
 </style>
 
 <body>
 <div class="article">
 <h1>Sketchpad Calculator</h1>
-<p>This calculator UI is designed after how a person might intuitively do quick calculations on a sheet of paper.
-<!-- Included numberpad is for touch screens - otherwise a keyboard is the best input source.-->
 
 <p>Round to 
 <select id="sigFigs">
@@ -74,7 +71,7 @@ span.cursorOff {border-right: 1px solid #fff; }
 <option value="5">5
 <option value="6">6
 </select> 
-significant figures. (Maximum 6.)
+significant figures.
 
 <div id="numberpad-panel">
 <div id="numberpad">
@@ -291,6 +288,7 @@ function hitEquals() {
         justCalculated = false;
         addRow('new');
         addRow();
+        window.scrollTo(0,document.body.scrollHeight);
         return;
     }
 
