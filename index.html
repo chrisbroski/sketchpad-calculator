@@ -7,7 +7,7 @@
 <title>Sketchpad Calculator</title>
 <style>
 html {padding: 10px; font-family: droid sans, sans-serif; }
-body {margin: 0 auto; max-width: 580px; min-width: 428px; position: relative; }
+body {margin: 0 auto; max-width: 580px; position: relative; }
 div.article {position: relative; }
 div.article > *:first-child {margin-top: 0; }
 div.article p {line-height: 1.1em; margin: 0.3em 0 0.5em; }
@@ -27,6 +27,7 @@ div.article h1 {margin: 0; font-size: 24px; }
     text-align: center;
 }
 #numberpad button.equals {height: 101px; float: right; }
+#numberpad #zero {width: 101px; }
 
 #paper {font: 18px monospace; width: 200px;}
 #paper > div {text-align: right; }
@@ -38,6 +39,23 @@ div.article h1 {margin: 0; font-size: 24px; }
 
 span.cursorOn {border-right: 1px solid #000; }
 span.cursorOff {border-right: 1px solid #fff; }
+</style>
+
+<style>
+@media only screen and (max-width: 428px) {
+    #numberpad {
+        margin: 0 0 0 155px; 
+        width: 128px;
+    }
+    #numberpad button {
+        font-size: 18px;
+        width: 30px; height: 30px;
+    }
+    #numberpad button.equals {height: 61px; }
+    #numberpad #zero {width: 61px; }
+    
+    #paper {font: 14px monospace; width: 150px; }
+}
 </style>
 
 <body>
@@ -80,7 +98,7 @@ significant figures. (Maximum 6.)
     ><button type="button" class="operand">3</button
     ><button type="button" class="equals">=</button><br>
 
-    <button type="button" class="operand" style="width: 101px">0</button
+    <button type="button" class="operand" id="zero">0</button
     ><button type="button" class="operand">.</button>
 </div>
 <!--<pre id="test"></pre>-->
