@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="IE=Edge">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<title>Sketchpad Calculator</title>
+<style>
+html {padding: 10px; font-family: droid sans, sans-serif; }
+body {margin: 0 auto; max-width: 580px; min-width: 428px; position: relative; }
+div.article {position: relative; }
+div.article > *:first-child {margin-top: 0; }
+div.article p {line-height: 1.1em; margin: 0.3em 0 0.5em; }
+div.article h1 {margin: 0; font-size: 24px; }
+
+/*#numberpad-panel {margin: 0 auto; max-width: 580px; min-width: 428px; position: fixed; bottom: 10px; overflow: auto; bottom: 10px; }*/
+#numberpad {
+    margin: 0 0 0 210px; padding: 2px;
+    background: #000;
+    width: 208px;
+    position: fixed; bottom: 10px;
+}
+#numberpad button {
+    margin: 1px;
+    font-family: monospace; font-size: 24px;
+    width: 50px; height: 50px;
+    text-align: center;
+}
+#numberpad button.equals {height: 101px; float: right; }
+
+#paper {font: 18px monospace; width: 200px;}
+#paper > div {text-align: right; }
+#paper > div span.operator {padding-right: 1em;}
+#paper > div span.operand {cursor: pointer; }
+#paper > div span.operand:hover {color: blue; }
+#paper div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
+#paper div.new {height: 1em; }
+
+span.cursorOn {border-right: 1px solid #000; }
+span.cursorOff {border-right: 1px solid #fff; }
+</style>
+
+<body>
+<div class="article">
+<h1>Sketchpad Calculator</h1>
+<p>This calculator UI is designed after how a person might intuitively do quick calculations on a sheet of paper.
+<!-- Included numberpad is for touch screens - otherwise a keyboard is the best input source.-->
+
+<p>Round to 
+<select id="sigFigs">
+<option value="" selected="selected">vulgar
+<option value="0">proper
+<option value="2">2
+<option value="3">3
+<option value="4">4
+<option value="5">5
+<option value="6">6
+</select> 
+significant figures. (Maximum 6.)
+
+<div id="numberpad-panel">
+<div id="numberpad">
+    <button type="button" class="operator">+</button
+    ><button type="button" class="operator">-</button
+    ><button type="button" class="operator">×</button
+    ><button type="button" class="operator">÷</button><br>
+
+    <button type="button" class="operand">7</button
+    ><button type="button" class="operand">8</button
+    ><button type="button" class="operand">9</button
+    ><button type="button" class="backspace">←</button><br>
+
+    <button type="button" class="operand">4</button
+    ><button type="button" class="operand">5</button
+    ><button type="button" class="operand">6</button
+    ><button type="button" class="operand">e</button><br>
+
+    <button type="button" class="operand">1</button
+    ><button type="button" class="operand">2</button
+    ><button type="button" class="operand">3</button
+    ><button type="button" class="equals">=</button><br>
+
+    <button type="button" class="operand" style="width: 101px">0</button
+    ><button type="button" class="operand">.</button>
+</div>
+<!--<pre id="test"></pre>-->
+</div>
+
+<div id="paper"></div>
+</div>
+
+<script>
+/*
+Bugs:
+
+There is some weirdness involving proper focus (changing precision instead of entering numbers)
+
+Features:
+
+backspace through previous lines
+input scientific notation (e)
+scroll to good position
+*/
+var activeRow = {index: 0, type: 'operand'},
+    paper = document.getElementById('paper'),
+    justCalculated = false,
+    blinkId,
+    blinkerOn = true,
+    operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
+    operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''};
+
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function makeRow() {
+    var row = document.createElement('div');
+    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span class="cursorOff"></span>';
+    return row;
+}
+
+function getSpans(rowIndex) {
+    rowIndex = rowIndex || activeRow.index;
+    return paper.getElementsByTagName('div')[rowIndex].getElementsByTagName('span');
+}
+
+function addRow(className, operatorValue, operandValue) {
+    var newRow = makeRow();
+    className = className || '';
+
+    window.clearTimeout(blinkId);
+    getSpans()[2].className = 'cursorOff';
+    newRow.className = className;
+    if (operatorValue) {
+        newRow.getElementsByTagName('span')[0].innerHTML = operatorValue;
+    }
+    if (operandValue) {
+        newRow.getElementsByTagName('span')[1].innerHTML = operandValue;
+    }
+    paper.appendChild(newRow);
+    activeRow.index = activeRow.index + 1;
+    cursorBlink(true);
+}
+
+function addEvent(el, evType, fn, bubble) {
+    bubble = bubble || false;
+    if (el.addEventListener) {
+        el.addEventListener(evType, fn, bubble);
+    } else if (el.attachEvent) {
+        el.attachEvent("on" + evType, fn);
+    }
+}
+
+function touchclick(el, func, bubble) {
+    bubble = bubble || false;
+    //document.getElementById('test').innerHTML = !!navigator.msMaxTouchPoints;
+    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
+        el.addEventListener('touchstart', func, bubble);
+    } else {
+        addEvent(el, 'click', func, bubble);
+    }
+}
+
+function countSigFigs(num) {
+    // remove decimal and negative signs
+    num = num.replace(/[\-\.]/g, '');
+    // remove exponents
+    num = num.replace(/e[+\-].$/g, '');
+    // trim leading zeros
+    num = num.replace(/^0*/g, '');
+
+    return num.length;
+}
+
+function toVulgar(num) {
+    var formattedNum = num.toPrecision(6).toString(10);
+    // remove trailing zeros
+    formattedNum = formattedNum.replace(/0*$/g, '');
+    // there might be a decimal at the end
+    if (formattedNum.slice(-1) === '.') {
+        formattedNum = formattedNum.slice(0, -1);
+    }
+    return formattedNum;
+}
+
+function calculateRecent() {
+    // gonna eval it! NOOOOOOO! I'll fix this later...
+    var rows = paper.getElementsByTagName('div'),
+        calcString = '',
+        searchRow = activeRow.index - 1,
+        spans,
+        sigFigsVal = document.getElementById('sigFigs').value,
+        sigFig = 0,
+        sigFigs = 0;
+
+    while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
+        spans = rows[searchRow].getElementsByTagName('span');
+        sigFig = countSigFigs(spans[1].innerHTML);
+        if (sigFig > 6) {
+            sigFig = 6;
+        }
+        if (sigFigs === 0 || sigFig < sigFigs) {
+            sigFigs = sigFig;
+        }
+        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
+        searchRow = searchRow - 1;
+    }
+
+    if (sigFigsVal === '') {
+        return toVulgar(eval(calcString));
+    }
+
+    if (sigFigsVal === '0') {
+        sigFigsVal = sigFigs;
+    }
+    return eval(calcString).toPrecision(+sigFigsVal);
+}
+
+function enterOperand(digit, replace) {
+    var spans, newNumber;
+    spans = getSpans();
+
+    // Make sure its a legit number
+    if (replace || justCalculated) {
+        newNumber = digit;
+    } else {
+        newNumber = spans[1].innerHTML + digit;
+    }
+
+    if (newNumber !== '-' && newNumber !== '-.' && newNumber !== '.') {
+        if (!isNumber(newNumber)) {
+            return;
+        }
+    }
+
+    if (justCalculated) {
+        justCalculated = false;
+        addRow('new');
+        addRow();
+        spans = getSpans();
+    }
+
+    spans[1].innerHTML = newNumber;
+    window.scrollTo(0,document.body.scrollHeight);
+}
+
+function enterOperator(symbol) {
+    var spans = getSpans();
+
+    // If there is no number above or on it, exit.
+    if (!spans[1].innerHTML && (activeRow.index === 0 || !getSpans(activeRow.index - 1)[1].innerHTML)) {
+        return;
+    }
+    // Or if the number above is possibly, but not yet, legit.
+    if (spans[1].innerHTML === '-' || spans[1].innerHTML === '.' || spans[1].innerHTML === '-.') {
+        return;
+    }
+
+    justCalculated = false;
+
+    // if there is already an operator on the active row, replace it
+    if (spans[0].innerHTML && !spans[1].innerHTML) {
+        spans[0].innerHTML = operators[symbol];
+    } else {
+        addRow('', operators[symbol]);
+    }
+    window.scrollTo(0,document.body.scrollHeight);
+}
+
+function hitEquals() {
+    // if just calculated, start a new row
+    if (justCalculated) {
+        justCalculated = false;
+        addRow('new');
+        addRow();
+        return;
+    }
+
+    if (getSpans()[1].innerHTML) {
+        addRow('equals');
+        addRow('', '', calculateRecent());
+        justCalculated = true;
+    }
+    window.scrollTo(0,document.body.scrollHeight);
+}
+
+function removeOperand() {
+    var spans = getSpans();
+    console.log(spans[1].innerHTML);
+
+    // If there is no number, exit.
+    if (!spans[1].innerHTML) {
+        return;
+    }
+
+    // Remove digit on the right
+    spans[1].innerHTML = spans[1].innerHTML.slice(0, -1);
+}
+
+function keyenter(e) {
+    var key,
+        reOperand = /^[0-9\.]$/,
+        reOperator = /^[+*\/]$/,
+        spans;
+
+    if (e.key) {
+        key = e.key;
+    } else {
+        key = String.fromCharCode(e.keyCode);
+    }
+
+    // [-] matches both number and operator
+    if (key === '-') {
+        spans = getSpans();
+        // a minus sign alone (or other weird things like -.) is not a legit number
+        // Should this validation go here? Probably not.
+        if (spans[1].innerHTML === '-' || spans[1].innerHTML === '.' || spans[1].innerHTML === '-.') {
+            return;
+        }
+        // if there is a number, treat as operator
+        if (spans[1].innerHTML) {
+            enterOperator(key);
+            return;
+        }
+        // if there is an operator, and there is no current number, treat as number
+        if (spans[0].innerHTML && !spans[1].innerHTML) {
+            enterOperand(key);
+            return;
+        }
+        // if there is no operator yet, and there is a number above, it is an operator
+        if (activeRow.index === 0 || !getSpans(activeRow.index - 1)[1].innerHTML) {
+            enterOperand(key);
+            return;
+        }
+    }
+
+    // Operator
+    if (key.match(reOperator)) {
+        enterOperator(key);
+        return;
+    }
+
+    // Number
+    if (key.match(reOperand)) {
+        enterOperand(key);
+        return;
+    }
+
+    // Calculate
+    if (e.keyCode === 13 || e.keyCode === 61) {
+        spans = getSpans();
+        if (!isNumber(spans[1].innerHTML)) {
+            return;
+        }
+        hitEquals();
+    }
+}
+
+function addNumber(e) {
+    var el = (e.target) ? e.target : e.srcElement,
+        className = el.className,
+        tagName = el.tagName;
+
+    if (className === 'operand') {
+        enterOperand(el.innerHTML, (tagName !== 'BUTTON'));
+    }
+    // From old numberpad UI
+    if (className === 'operator') {
+        enterOperator(operatorSymbols[el.innerHTML], (tagName !== 'BUTTON'));
+    }
+    if (className === 'equals' && tagName === 'BUTTON') {
+        hitEquals();
+    }
+    if (className === 'backspace' && tagName === 'BUTTON') {
+        removeOperand();
+    }
+}
+
+addEvent(document.getElementsByTagName('body')[0], 'keydown', function (e) {
+    // Stop quick search in Firefox
+    if (e.key === '/') {
+        enterOperator('/');
+        e.preventDefault();
+    }
+    // Prevent backspace from acting like the back button
+    if (e.keyCode === 8) {
+        removeOperand();
+        e.preventDefault();
+    }
+});
+
+addEvent(document.getElementsByTagName('body')[0], 'keypress', keyenter);
+addEvent(paper, 'click', addNumber);
+touchclick(document.getElementById('numberpad'), addNumber);
+//document.getElementById('numberpad').addEventListener('touchstart', addNumber, false);
+
+paper.appendChild(makeRow());
+
+function cursorBlink(resetBlink) {
+    var cursorSpan = paper.getElementsByTagName('div')[activeRow.index].getElementsByTagName('span')[2];
+
+    blinkerOn = (resetBlink) ? 'cursorOn' : !blinkerOn;
+    cursorSpan.className = (blinkerOn) ? 'cursorOn' : 'cursorOff';
+    blinkId = window.setTimeout(cursorBlink, 600);
+}
+cursorBlink(true);
+</script>
