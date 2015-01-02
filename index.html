@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html><!-- manifest="calc.appcache">-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 <title>Sketchpad Calculator</title>
 <style>
-html {padding: 10px; font-family: droid sans, sans-serif; }
-body {margin: 0 auto; max-width: 580px; position: relative; }
+html {padding: 5px; font-family: droid sans, sans-serif; }
+/*body {margin: 0 auto; max-width: 580px; position: relative; }*/
 div.article {position: relative; }
 div.article > *:first-child {margin-top: 0; }
 div.article p {line-height: 1.1em; margin: 0.3em 0 0.5em; }
 div.article h1 {margin: 0; font-size: 24px; }
 
-/*#numberpad-panel {margin: 0 auto; max-width: 580px; min-width: 428px; position: fixed; bottom: 10px; overflow: auto; bottom: 10px; }*/
 #numberpad {
-    margin: 0 0 0 210px; padding: 2px;
+    margin: 0 0 0 162px; padding: 2px;
     background: #000;
-    width: 208px;
+    width: 200px;
     position: fixed; bottom: 10px;
 }
 #numberpad button {
     margin: 1px;
-    font-family: monospace; font-size: 24px;
-    width: 50px; height: 50px;
+    font: 24px serif;
+    width: 48px; height: 50px;
     text-align: center;
 }
 #numberpad button.equals {height: 101px; float: right; }
-#numberpad #zero {width: 101px; }
+#numberpad .exponent {text-align: left; }
+#numberpad #zero {width: 97px; }
 
-#paper {font: 18px monospace; width: 200px;}
+#paper {font: 18px monospace; width: 152px;}
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 1em;}
 #paper > div span.operand {cursor: pointer; }
@@ -42,27 +42,25 @@ span.cursorOff {border-right: 1px solid #fff; }
 </style>
 
 <style>
-@media only screen and (max-width: 428px) {
+@media only screen and (max-width: 380px) {
     #numberpad {
         margin: 0 0 0 155px; 
-        width: 128px;
+        width: 137px;
     }
     #numberpad button {
         font-size: 18px;
-        width: 30px; height: 30px;
+        width: 32px;
     }
-    #numberpad button.equals {height: 61px; }
-    #numberpad #zero {width: 61px; }
+    #numberpad #zero {width: 66px; }
+    #numberpad .exponent {font-size: 16px; }
     
-    #paper {font: 14px monospace; width: 150px; }
+    #paper {font: 15px monospace; width: 150px; }
 }
 </style>
 
 <body>
 <div class="article">
 <h1>Sketchpad Calculator</h1>
-<p>This calculator UI is designed after how a person might intuitively do quick calculations on a sheet of paper.
-<!-- Included numberpad is for touch screens - otherwise a keyboard is the best input source.-->
 
 <p>Round to 
 <select id="sigFigs">
@@ -74,12 +72,12 @@ span.cursorOff {border-right: 1px solid #fff; }
 <option value="5">5
 <option value="6">6
 </select> 
-significant figures. (Maximum 6.)
+significant digits.
 
 <div id="numberpad-panel">
 <div id="numberpad">
     <button type="button" class="operator">+</button
-    ><button type="button" class="operator">-</button
+    ><button type="button" class="minus">-</button
     ><button type="button" class="operator">×</button
     ><button type="button" class="operator">÷</button><br>
 
@@ -91,7 +89,7 @@ significant figures. (Maximum 6.)
     <button type="button" class="operand">4</button
     ><button type="button" class="operand">5</button
     ><button type="button" class="operand">6</button
-    ><button type="button" class="operand">e</button><br>
+    ><button type="button" class="exponent">×10</button><br>
 
     <button type="button" class="operand">1</button
     ><button type="button" class="operand">2</button
@@ -117,7 +115,9 @@ Features:
 
 backspace through previous lines
 input scientific notation (e)
-scroll to good position
+
+vulgar rounding to remove tailing zeros in exponential notation
+
 */
 var activeRow = {index: 0, type: 'operand'},
     paper = document.getElementById('paper'),
@@ -129,6 +129,45 @@ var activeRow = {index: 0, type: 'operand'},
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function isPartialNumber(n) {
+    var aNumPieces;
+    // 1.7976931348623157e+308 to 5e-324
+    if (n === '-' || n === '+' || n === '-.' || n === '.') {
+        return true;
+    }
+
+    function isExponent(ex) {
+        // is integer 0 - 300 starting with +, -, or a number
+        if (ex === '-' || ex === '+' || ex === '') {
+            return true;
+        }
+        if (!isNumber(ex)) {
+            return false;
+        }
+        if (ex % 1 !== 0) {
+            return false;
+        }
+        if (ex < 0 || ex > 300) {
+            return false;
+        }
+        return true;
+    }
+
+    // partial exponent
+    // (legit full number) + e (+/-) (0 - 100)
+    aNumPieces = n.split('e');
+    if (aNumPieces.length === 2) {
+        if (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1])) {
+            return true
+        }
+    }
+    
+    if (!isNumber(n)) {
+        return false;
+    }
+    return true;
 }
 
 function makeRow() {
@@ -183,7 +222,7 @@ function countSigFigs(num) {
     // remove decimal and negative signs
     num = num.replace(/[\-\.]/g, '');
     // remove exponents
-    num = num.replace(/e[+\-].$/g, '');
+    num = num.split('e')[0];
     // trim leading zeros
     num = num.replace(/^0*/g, '');
 
@@ -191,14 +230,26 @@ function countSigFigs(num) {
 }
 
 function toVulgar(num) {
-    var formattedNum = num.toPrecision(6).toString(10);
-    // remove trailing zeros
-    formattedNum = formattedNum.replace(/0*$/g, '');
-    // there might be a decimal at the end
-    if (formattedNum.slice(-1) === '.') {
-        formattedNum = formattedNum.slice(0, -1);
+    var formattedNum = num.toPrecision(6).toString(10),
+        aFormattedNum;
+
+    function trimTrailZeros(n) {
+        if (n.indexOf('.') === -1) {
+            return n;
+        }
+        n = n.replace(/0*$/g, '');
+        if (n.slice(-1) === '.') {
+            return n.slice(0, -1);
+        }
+        return n;
     }
-    return formattedNum;
+
+    aFormattedNum = formattedNum.split('e');
+    if (aFormattedNum.length > 1) {
+        return trimTrailZeros(aFormattedNum[0]) + 'e' + aFormattedNum[1];
+    } else {
+        return trimTrailZeros(formattedNum);
+    }
 }
 
 function calculateRecent() {
@@ -223,6 +274,7 @@ function calculateRecent() {
         calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
         searchRow = searchRow - 1;
     }
+    //console.log(calcString);
 
     if (sigFigsVal === '') {
         return toVulgar(eval(calcString));
@@ -245,10 +297,8 @@ function enterOperand(digit, replace) {
         newNumber = spans[1].innerHTML + digit;
     }
 
-    if (newNumber !== '-' && newNumber !== '-.' && newNumber !== '.') {
-        if (!isNumber(newNumber)) {
-            return;
-        }
+    if (!isPartialNumber(newNumber)) {
+        return;
     }
 
     if (justCalculated) {
@@ -291,6 +341,7 @@ function hitEquals() {
         justCalculated = false;
         addRow('new');
         addRow();
+        window.scrollTo(0,document.body.scrollHeight);
         return;
     }
 
@@ -304,7 +355,6 @@ function hitEquals() {
 
 function removeOperand() {
     var spans = getSpans();
-    console.log(spans[1].innerHTML);
 
     // If there is no number, exit.
     if (!spans[1].innerHTML) {
@@ -315,9 +365,22 @@ function removeOperand() {
     spans[1].innerHTML = spans[1].innerHTML.slice(0, -1);
 }
 
+function isMinusOperand() {
+    var spans = getSpans();
+
+    if (spans[1].innerHTML.slice(-1) === 'e') {
+        return true;
+    }
+    // if there is a number, treat as operator
+    if (spans[1].innerHTML) {
+        return false;
+    }
+    return true;
+}
+
 function keyenter(e) {
     var key,
-        reOperand = /^[0-9\.]$/,
+        reOperand = /^[0-9\.e]$/,
         reOperator = /^[+*\/]$/,
         spans;
 
@@ -329,26 +392,10 @@ function keyenter(e) {
 
     // [-] matches both number and operator
     if (key === '-') {
-        spans = getSpans();
-        // a minus sign alone (or other weird things like -.) is not a legit number
-        // Should this validation go here? Probably not.
-        if (spans[1].innerHTML === '-' || spans[1].innerHTML === '.' || spans[1].innerHTML === '-.') {
-            return;
-        }
-        // if there is a number, treat as operator
-        if (spans[1].innerHTML) {
+        if (isMinusOperand()) {
+            enterOperand(key);
+        } else {
             enterOperator(key);
-            return;
-        }
-        // if there is an operator, and there is no current number, treat as number
-        if (spans[0].innerHTML && !spans[1].innerHTML) {
-            enterOperand(key);
-            return;
-        }
-        // if there is no operator yet, and there is a number above, it is an operator
-        if (activeRow.index === 0 || !getSpans(activeRow.index - 1)[1].innerHTML) {
-            enterOperand(key);
-            return;
         }
     }
 
@@ -382,7 +429,14 @@ function addNumber(e) {
     if (className === 'operand') {
         enterOperand(el.innerHTML, (tagName !== 'BUTTON'));
     }
-    // From old numberpad UI
+    if (className === 'minus' && tagName === 'BUTTON') {
+        // determine if operator or operand
+        if (isMinusOperand()) {
+            enterOperand('-');
+        } else {
+            enterOperator('-');
+        }
+    }
     if (className === 'operator') {
         enterOperator(operatorSymbols[el.innerHTML], (tagName !== 'BUTTON'));
     }
@@ -391,6 +445,9 @@ function addNumber(e) {
     }
     if (className === 'backspace' && tagName === 'BUTTON') {
         removeOperand();
+    }
+    if (className === 'exponent' && tagName === 'BUTTON') {
+        enterOperand('e');
     }
 }
 
