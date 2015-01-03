@@ -11,94 +11,95 @@
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
 h1 {margin: 0; font-size: 22px; width: 150px; }
-h2 {margin: 0; font-weight: normal; font-size: 14px; position: absolute; top: 10px; left: 160px; }
+h2 {margin: 0 0 0 162px; font-weight: normal; font-size: 14px; position: fixed; top: 10px; }
 
 #paper {font: 18px monospace; width: 152px;}
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 1em;}
 #paper > div span.operand {cursor: pointer; }
 #paper > div span.operand:hover {color: blue; }
-#paper div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
-#paper div.new {height: 1em; }
+#paper > div span:last-child {border-right: 1px solid #fff; }
+#paper > div span.cursorOn {border-right: 1px solid #000; }
+#paper > div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
+#paper > div.new {height: 1em; }
 
 #numberpad {
     margin: 0 0 0 162px; padding: 2px;
     background: #000;
-    width: 200px;
+    width: 192px;
     position: fixed; bottom: 10px;
 }
 #numberpad button {
-    margin: 1px;
+    margin: 0; padding: 0; 
     font: 24px serif;
     width: 48px; height: 50px;
     text-align: center;
+    line-height: 24px; 
 }
-#numberpad button.equals {height: 101px; float: right; }
+#numberpad button.equals {height: 100px; float: right; }
 #numberpad .exponent {text-align: left; }
-#numberpad #zero {width: 97px; }
-
-span.cursorOn {border-right: 1px solid #000; }
-span.cursorOff {border-right: 1px solid #fff; }
+#numberpad #zero {width: 96px; }
 </style>
 
 <style>
 @media only screen and (max-width: 380px) {
     #numberpad {
         margin: 0 0 0 155px; 
-        width: 137px;
+        width: 128px;
     }
     #numberpad button {
-        font-size: 18px;
+        font-size: 16px;
+        line-height: 16px; 
         width: 32px;
     }
-    #numberpad #zero {width: 66px; }
-    #numberpad .exponent {font-size: 16px; }
+    #numberpad #zero {width: 64px; }
+    #numberpad .exponent {font-size: 14px; line-height: 10px;}
 }
 </style>
 
 <body>
-<div class="article">
+<div id="calculator">
 <h1>Sketchpad Calculator</h1>
 
 <h2>Round to 
 <select id="sigFigs">
-<option value="" selected="selected">calc
-<option value="0">proper
-<option value="2">2
-<option value="3">3
-<option value="4">4
-<option value="5">5
-<option value="6">6
+    <option value="" selected="selected">calc
+    <option value="0">proper
+    <option value="2">2
+    <option value="3">3
+    <option value="4">4
+    <option value="5">5
+    <option value="6">6
+    <option value="7">7
+    <option value="8">8
 </select> 
-precision.
+precision<br>
+<a href="">Clear All</a>
 </h2>
 
-<div id="numberpad-panel">
 <div id="numberpad">
-    <button type="button" class="operator">+</button
-    ><button type="button" class="minus">-</button
-    ><button type="button" class="operator">×</button
-    ><button type="button" class="operator">÷</button><br>
+    <button class="operator">+</button
+    ><button class="minus">-</button
+    ><button class="operator">×</button
+    ><button class="operator">÷</button
 
-    <button type="button" class="operand">7</button
-    ><button type="button" class="operand">8</button
-    ><button type="button" class="operand">9</button
-    ><button type="button" class="backspace">←</button><br>
+    ><button class="operand">7</button
+    ><button class="operand">8</button
+    ><button class="operand">9</button
+    ><button class="backspace">←</button
 
-    <button type="button" class="operand">4</button
-    ><button type="button" class="operand">5</button
-    ><button type="button" class="operand">6</button
-    ><button type="button" class="exponent">×10</button><br>
+    ><button class="operand">4</button
+    ><button class="operand">5</button
+    ><button class="operand">6</button
+    ><button class="exponent">×10</button
 
-    <button type="button" class="operand">1</button
-    ><button type="button" class="operand">2</button
-    ><button type="button" class="operand">3</button
-    ><button type="button" class="equals">=</button><br>
+    ><button class="operand">1</button
+    ><button class="operand">2</button
+    ><button class="operand">3</button
+    ><button class="equals">=</button
 
-    <button type="button" class="operand" id="zero">0</button
-    ><button type="button" class="operand">.</button>
-</div>
-<!--<pre id="test"></pre>-->
+    ><button class="operand" id="zero">0</button
+    ><button class="operand">.</button>
 </div>
 
 <div id="paper"></div>
@@ -116,7 +117,8 @@ Features:
 backspace through previous lines
 
 */
-var activeRow = {index: 0, type: 'operand'},
+/*jslint browser: true, devel: true, evil: true, sloppy: true */
+var activeRow = 0,
     paper = document.getElementById('paper'),
     justCalculated = false,
     blinkId,
@@ -126,6 +128,42 @@ var activeRow = {index: 0, type: 'operand'},
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function addEvent(el, evType, fn, bubble) {
+    bubble = bubble || false;
+    if (el.addEventListener) {
+        el.addEventListener(evType, fn, bubble);
+    } else if (el.attachEvent) {
+        el.attachEvent("on" + evType, fn);
+    }
+}
+
+function touchclick(el, func, bubble) {
+    bubble = !!bubble;
+    if (window.hasOwnProperty('ontouchstart') || window.hasOwnProperty('onmsgesturechange')) {
+        el.addEventListener('touchstart', func, bubble);
+    } else {
+        addEvent(el, 'click', func, bubble);
+    }
+}
+
+function getSpans(rowIndex) {
+    rowIndex = rowIndex || activeRow;
+    return paper.getElementsByTagName('div')[rowIndex].getElementsByTagName('span');
+}
+
+function cursorBlink(resetBlink) {
+    var cursorSpan = getSpans()[2];
+
+    if (resetBlink || !blinkerOn) {
+        cursorSpan.className = 'cursorOn';
+        blinkerOn = true;
+    } else {
+        cursorSpan.className = '';
+        blinkerOn = false;
+    }
+    blinkId = window.setTimeout(cursorBlink, 600);
 }
 
 function isPartialNumber(n) {
@@ -157,10 +195,10 @@ function isPartialNumber(n) {
     aNumPieces = n.split('e');
     if (aNumPieces.length === 2) {
         if (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1])) {
-            return true
+            return true;
         }
     }
-    
+
     if (!isNumber(n)) {
         return false;
     }
@@ -169,22 +207,18 @@ function isPartialNumber(n) {
 
 function makeRow() {
     var row = document.createElement('div');
-    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span class="cursorOff"></span>';
+    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span></span>';
     return row;
-}
-
-function getSpans(rowIndex) {
-    rowIndex = rowIndex || activeRow.index;
-    return paper.getElementsByTagName('div')[rowIndex].getElementsByTagName('span');
 }
 
 function addRow(className, operatorValue, operandValue) {
     var newRow = makeRow();
-    className = className || '';
 
+    // Stop the blinking
     window.clearTimeout(blinkId);
-    getSpans()[2].className = 'cursorOff';
-    newRow.className = className;
+    getSpans()[2].className = '';
+
+    newRow.className = className || '';
     if (operatorValue) {
         newRow.getElementsByTagName('span')[0].innerHTML = operatorValue;
     }
@@ -192,34 +226,16 @@ function addRow(className, operatorValue, operandValue) {
         newRow.getElementsByTagName('span')[1].innerHTML = operandValue;
     }
     paper.appendChild(newRow);
-    activeRow.index = activeRow.index + 1;
+    activeRow = activeRow + 1;
     cursorBlink(true);
 }
 
-function addEvent(el, evType, fn, bubble) {
-    bubble = bubble || false;
-    if (el.addEventListener) {
-        el.addEventListener(evType, fn, bubble);
-    } else if (el.attachEvent) {
-        el.attachEvent("on" + evType, fn);
-    }
-}
-
-function touchclick(el, func, bubble) {
-    bubble = bubble || false;
-    //document.getElementById('test').innerHTML = !!navigator.msMaxTouchPoints;
-    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
-        el.addEventListener('touchstart', func, bubble);
-    } else {
-        addEvent(el, 'click', func, bubble);
-    }
-}
-
 function countSigFigs(num) {
-    // remove decimal and negative signs
-    num = num.replace(/[\-\.]/g, '');
+    // I think this is wrong - trailing zeros should count after the decimal
     // remove exponents
     num = num.split('e')[0];
+    // remove decimal and signs
+    num = num.replace(/[\-\.\+]/g, '');
     // trim leading zeros
     num = num.replace(/^0*/g, '');
 
@@ -227,7 +243,7 @@ function countSigFigs(num) {
 }
 
 function toVulgar(num) {
-    var formattedNum = num.toPrecision(6).toString(10),
+    var formattedNum = num.toPrecision(8).toString(10),
         aFormattedNum;
 
     function trimTrailZeros(n) {
@@ -244,16 +260,15 @@ function toVulgar(num) {
     aFormattedNum = formattedNum.split('e');
     if (aFormattedNum.length > 1) {
         return trimTrailZeros(aFormattedNum[0]) + 'e' + aFormattedNum[1];
-    } else {
-        return trimTrailZeros(formattedNum);
     }
+    return trimTrailZeros(formattedNum);
 }
 
 function calculateRecent() {
     // gonna eval it! NOOOOOOO! I'll fix this later...
     var rows = paper.getElementsByTagName('div'),
         calcString = '',
-        searchRow = activeRow.index - 1,
+        searchRow = activeRow - 1,
         spans,
         sigFigsVal = document.getElementById('sigFigs').value,
         sigFig = 0,
@@ -271,7 +286,7 @@ function calculateRecent() {
         calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
         searchRow = searchRow - 1;
     }
-    //console.log(calcString);
+    console.log(calcString);
 
     if (sigFigsVal === '') {
         return toVulgar(eval(calcString));
@@ -306,14 +321,14 @@ function enterOperand(digit, replace) {
     }
 
     spans[1].innerHTML = newNumber;
-    window.scrollTo(0,document.body.scrollHeight);
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function enterOperator(symbol) {
     var spans = getSpans();
 
     // If there is no number above or on it, exit.
-    if (!spans[1].innerHTML && (activeRow.index === 0 || !getSpans(activeRow.index - 1)[1].innerHTML)) {
+    if (!spans[1].innerHTML && (activeRow === 0 || !getSpans(activeRow - 1)[1].innerHTML)) {
         return;
     }
     // Or if the number above is possibly, but not yet, legit.
@@ -329,7 +344,7 @@ function enterOperator(symbol) {
     } else {
         addRow('', operators[symbol]);
     }
-    window.scrollTo(0,document.body.scrollHeight);
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function hitEquals() {
@@ -338,7 +353,7 @@ function hitEquals() {
         justCalculated = false;
         addRow('new');
         addRow();
-        window.scrollTo(0,document.body.scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight);
         return;
     }
 
@@ -347,7 +362,7 @@ function hitEquals() {
         addRow('', '', calculateRecent());
         justCalculated = true;
     }
-    window.scrollTo(0,document.body.scrollHeight);
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function removeOperand() {
@@ -375,17 +390,10 @@ function isMinusOperand() {
     return true;
 }
 
-function keyenter(e) {
-    var key,
+function keyEnter(e) {
+    var key = e.key || String.fromCharCode(e.keyCode),
         reOperand = /^[0-9\.e]$/,
-        reOperator = /^[+*\/]$/,
-        spans;
-
-    if (e.key) {
-        key = e.key;
-    } else {
-        key = String.fromCharCode(e.keyCode);
-    }
+        reOperator = /^[+*\/]$/;
 
     // [-] matches both number and operator
     if (key === '-') {
@@ -399,56 +407,55 @@ function keyenter(e) {
     // Operator
     if (key.match(reOperator)) {
         enterOperator(key);
-        return;
     }
 
     // Number
     if (key.match(reOperand)) {
         enterOperand(key);
-        return;
     }
 
     // Calculate
     if (e.keyCode === 13 || e.keyCode === 61) {
-        spans = getSpans();
-        if (!isNumber(spans[1].innerHTML)) {
-            return;
+        if (isNumber(getSpans()[1].innerHTML)) {
+            hitEquals();
         }
-        hitEquals();
     }
 }
 
-function addNumber(e) {
-    var el = (e.target) ? e.target : e.srcElement,
-        className = el.className,
-        tagName = el.tagName;
+function clickEnter(e) {
+    var el = e.target || e.srcElement,
+        className = el.className;
 
-    if (className === 'operand') {
-        enterOperand(el.innerHTML, (tagName !== 'BUTTON'));
-    }
-    if (className === 'minus' && tagName === 'BUTTON') {
-        // determine if operator or operand
-        if (isMinusOperand()) {
-            enterOperand('-');
-        } else {
-            enterOperator('-');
+    if (el.tagName === 'BUTTON') {
+        if (className === 'operand') {
+            enterOperand(el.innerHTML);
         }
-    }
-    if (className === 'operator') {
-        enterOperator(operatorSymbols[el.innerHTML], (tagName !== 'BUTTON'));
-    }
-    if (className === 'equals' && tagName === 'BUTTON') {
-        hitEquals();
-    }
-    if (className === 'backspace' && tagName === 'BUTTON') {
-        removeOperand();
-    }
-    if (className === 'exponent' && tagName === 'BUTTON') {
-        enterOperand('e');
+        if (className === 'minus') {
+            // determine if operator or operand
+            if (isMinusOperand()) {
+                enterOperand('-');
+            } else {
+                enterOperator('-');
+            }
+        }
+        if (className === 'operator') {
+            enterOperator(operatorSymbols[el.innerHTML]);
+        }
+        if (className === 'equals') {
+            hitEquals();
+        }
+        if (className === 'backspace') {
+            removeOperand();
+        }
+        if (className === 'exponent') {
+            enterOperand('e');
+        }
+    } else {
+        enterOperand(el.innerHTML, true);
     }
 }
 
-addEvent(document.getElementsByTagName('body')[0], 'keydown', function (e) {
+function supressBrowserHotKeys(e) {
     // Stop quick search in Firefox
     if (e.key === '/') {
         enterOperator('/');
@@ -459,21 +466,16 @@ addEvent(document.getElementsByTagName('body')[0], 'keydown', function (e) {
         removeOperand();
         e.preventDefault();
     }
-});
-
-addEvent(document.getElementsByTagName('body')[0], 'keypress', keyenter);
-addEvent(paper, 'click', addNumber);
-touchclick(document.getElementById('numberpad'), addNumber);
-//document.getElementById('numberpad').addEventListener('touchstart', addNumber, false);
-
-paper.appendChild(makeRow());
-
-function cursorBlink(resetBlink) {
-    var cursorSpan = paper.getElementsByTagName('div')[activeRow.index].getElementsByTagName('span')[2];
-
-    blinkerOn = (resetBlink) ? 'cursorOn' : !blinkerOn;
-    cursorSpan.className = (blinkerOn) ? 'cursorOn' : 'cursorOff';
-    blinkId = window.setTimeout(cursorBlink, 600);
 }
-cursorBlink(true);
+
+function init() {
+    addEvent(document.body, 'keydown', supressBrowserHotKeys);
+    addEvent(document.body, 'keypress', keyEnter);
+    addEvent(paper, 'click', clickEnter);
+    touchclick(document.getElementById('numberpad'), clickEnter);
+
+    paper.appendChild(makeRow());
+    cursorBlink(true);
+}
+init();
 </script>
