@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<title>Sketchpad Calculator</title>
+<link href="/main.css" type="text/css" rel="stylesheet">
+
+<body>
+<div class="article">
+<h1>Sketchpad Calculator</h1>
+<div id="paper"></div>
+</div>
+
+<script>
+var paper = document.getElementById('paper');
+
+function addEvent(el, evType, fn, bubble) {
+    bubble = bubble || false;
+    if (el.addEventListener) {
+        el.addEventListener(evType, fn, bubble);
+    } else if (el.attachEvent) {
+        el.attachEvent("on" + evType, fn);
+    }
+}
+
+function keyListen(e) {
+    // 
+}
+
+addEvent(document.getElementsByTagName("html")[0], "keypress", keyListen);
+
+function x(){
+  return true;
+};
+</script>
