@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html><!-- manifest="calc.appcache">-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -11,7 +11,7 @@
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
 h1 {margin: 0; font-size: 22px; width: 150px; }
-h2 {margin: 0; font-weight: normal; font-size: 14px; position: absolute; top: 10px; left: 160px; }
+h2 {margin: 0 0 0 162px; font-weight: normal; font-size: 14px; position: fixed; top: 10px; }
 
 #paper {font: 18px monospace; width: 152px;}
 #paper > div {text-align: right; }
@@ -24,18 +24,19 @@ h2 {margin: 0; font-weight: normal; font-size: 14px; position: absolute; top: 10
 #numberpad {
     margin: 0 0 0 162px; padding: 2px;
     background: #000;
-    width: 200px;
+    width: 192px;
     position: fixed; bottom: 10px;
 }
 #numberpad button {
-    margin: 1px;
+    margin: 0; padding: 0; 
     font: 24px serif;
     width: 48px; height: 50px;
     text-align: center;
+    line-height: 24px; 
 }
-#numberpad button.equals {height: 101px; float: right; }
+#numberpad button.equals {height: 100px; float: right; }
 #numberpad .exponent {text-align: left; }
-#numberpad #zero {width: 97px; }
+#numberpad #zero {width: 96px; }
 
 span.cursorOn {border-right: 1px solid #000; }
 span.cursorOff {border-right: 1px solid #fff; }
@@ -45,14 +46,15 @@ span.cursorOff {border-right: 1px solid #fff; }
 @media only screen and (max-width: 380px) {
     #numberpad {
         margin: 0 0 0 155px; 
-        width: 137px;
+        width: 128px;
     }
     #numberpad button {
-        font-size: 18px;
+        font-size: 16px;
+        line-height: 16px; 
         width: 32px;
     }
-    #numberpad #zero {width: 66px; }
-    #numberpad .exponent {font-size: 16px; }
+    #numberpad #zero {width: 64px; }
+    #numberpad .exponent {font-size: 14px; line-height: 10px;}
 }
 </style>
 
@@ -70,7 +72,8 @@ span.cursorOff {border-right: 1px solid #fff; }
 <option value="5">5
 <option value="6">6
 </select> 
-precision.
+precision<br>
+<a href="">Clear All</a>
 </h2>
 
 <div id="numberpad-panel">
@@ -78,24 +81,24 @@ precision.
     <button type="button" class="operator">+</button
     ><button type="button" class="minus">-</button
     ><button type="button" class="operator">×</button
-    ><button type="button" class="operator">÷</button><br>
+    ><button type="button" class="operator">÷</button
 
-    <button type="button" class="operand">7</button
+    ><button type="button" class="operand">7</button
     ><button type="button" class="operand">8</button
     ><button type="button" class="operand">9</button
-    ><button type="button" class="backspace">←</button><br>
+    ><button type="button" class="backspace">←</button
 
-    <button type="button" class="operand">4</button
+    ><button type="button" class="operand">4</button
     ><button type="button" class="operand">5</button
     ><button type="button" class="operand">6</button
-    ><button type="button" class="exponent">×10</button><br>
+    ><button type="button" class="exponent">×10</button
 
-    <button type="button" class="operand">1</button
+    ><button type="button" class="operand">1</button
     ><button type="button" class="operand">2</button
     ><button type="button" class="operand">3</button
-    ><button type="button" class="equals">=</button><br>
+    ><button type="button" class="equals">=</button
 
-    <button type="button" class="operand" id="zero">0</button
+    ><button type="button" class="operand" id="zero">0</button
     ><button type="button" class="operand">.</button>
 </div>
 <!--<pre id="test"></pre>-->
