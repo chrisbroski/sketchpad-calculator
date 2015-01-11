@@ -12,7 +12,7 @@
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
 h1 {margin: 0; font-size: 22px; width: 150px; }
-h2 {margin: 0 0 0 162px; font-weight: normal; font-size: 14px; position: fixed; top: 10px; }
+/*h2 {margin: 0 0 0 162px; font-weight: normal; font-size: 14px; position: fixed; top: 10px; }*/
 
 button {
   -webkit-appearance: none;
@@ -51,25 +51,28 @@ button:active {background: #ddd; }
 </style>
 
 <style>
-@media only screen and (max-width: 380px) {
+/*@media only screen and (max-width: 380px) {*/
     #numberpad {
-        margin: 0 0 0 155px; 
-        width: 128px;
+        margin: 0 0 0 157px; 
+        width: 140px;
     }
     #numberpad button {
         font-size: 16px;
-        line-height: 16px; 
-        width: 32px;
+        line-height: 15px; 
+        width: 35px;
     }
-    #numberpad #zero {width: 64px; }
-    #numberpad .exponent {font-size: 14px; line-height: 10px;}
-}
+    #numberpad #zero {width: 70px; }
+    #numberpad #clear {width: 70px; }
+    #numberpad #sigFigs {margin: 0; width: 70px; height: 50px; }
+    
+    #numberpad .exponent {font-size: 14px; line-height: 10px; }
+/*}*/
 </style>
 
 <body>
 <div id="calculator">
 <h1>Sketchpad Calculator</h1>
-
+<!--
 <h2>Round to 
 <select id="sigFigs">
     <option value="" selected="selected">calc
@@ -85,10 +88,16 @@ button:active {background: #ddd; }
 </select> 
 precision<br>
 <a href="">Clear All</a>
-</h2>
+</h2>-->
 
 <div id="numberpad">
-    <button class="operator">+</button
+    <select id="sigFigs">
+    <option value="" selected="selected">Standard (Calculator rounding)
+    <option value="0">Scientific (Significant figures)
+    <option value="$">Money (Round to the penny)
+</select><button id="clear">Clear</button
+
+    ><button class="operator">+</button
     ><button class="minus">-</button
     ><button class="operator">×</button
     ><button class="operator">÷</button
