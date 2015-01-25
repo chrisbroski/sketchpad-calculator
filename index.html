@@ -466,6 +466,9 @@ function init() {
     addEvent(document.body, 'keypress', keyEnter);
     addEvent(paper, 'click', clickEnter);
     touchclick(document.getElementById('numberpad'), clickEnter);
+    addEvent(document.getElementById('clear'), 'click', function () {
+        location.reload(true);
+    });
 
     paper.appendChild(makeRow());
     cursorBlink(true);
