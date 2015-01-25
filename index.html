@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><!-- manifest="calc.appcache">-->
+<html manifest="calc.appcache">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -12,7 +12,6 @@
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
 h1 {margin: 0; font-size: 22px; width: 150px; }
-/*h2 {margin: 0 0 0 162px; font-weight: normal; font-size: 14px; position: fixed; top: 10px; }*/
 
 button {
   -webkit-appearance: none;
@@ -33,69 +32,38 @@ button:active {background: #ddd; }
 #paper > div.new {height: 1em; }
 
 #numberpad {
-    margin: 0 0 0 162px; padding: 2px;
+    margin: 0 0 0 157px; padding: 2px;
     background: #000;
-    width: 192px;
+    width: 140px;
     position: fixed; bottom: 10px;
 }
 #numberpad button {
     margin: 0; padding: 0; 
-    font: 24px serif;
-    width: 48px; height: 50px;
+    font: 16px serif;
+    width: 35px; height: 50px;
     text-align: center;
-    line-height: 24px; 
+    line-height: 15px; 
 }
 #numberpad button.equals {height: 100px; float: right; }
-#numberpad .exponent {text-align: left; }
-#numberpad #zero {width: 96px; }
-</style>
-
-<style>
-/*@media only screen and (max-width: 380px) {*/
-    #numberpad {
-        margin: 0 0 0 157px; 
-        width: 140px;
-    }
-    #numberpad button {
-        font-size: 16px;
-        line-height: 15px; 
-        width: 35px;
-    }
-    #numberpad #zero {width: 70px; }
-    #numberpad #clear {width: 70px; }
-    #numberpad #sigFigs {margin: 0; width: 70px; height: 50px; }
-    
-    #numberpad .exponent {font-size: 14px; line-height: 10px; }
-/*}*/
+#numberpad .exponent {font-size: 14px; line-height: 17px; }
+#numberpad .exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
+#numberpad #zero {width: 70px; }
+#numberpad #clear {width: 70px; }
+#numberpad #sigFigs {margin: 0; width: 70px; height: 50px; }
 </style>
 
 <body>
 <div id="calculator">
 <h1>Sketchpad Calculator</h1>
-<!--
-<h2>Round to 
-<select id="sigFigs">
-    <option value="" selected="selected">calc
-    <option value="0">proper
-    <option value="$">money
-    <option value="2">2
-    <option value="3">3
-    <option value="4">4
-    <option value="5">5
-    <option value="6">6
-    <option value="7">7
-    <option value="8">8
-</select> 
-precision<br>
-<a href="">Clear All</a>
-</h2>-->
+<pre id="test"></pre>
 
 <div id="numberpad">
     <select id="sigFigs">
-    <option value="" selected="selected">Standard (Calculator rounding)
-    <option value="0">Scientific (Significant figures)
-    <option value="$">Money (Round to the penny)
-</select><button id="clear">Clear</button
+        <option value="" selected="selected">Precision
+        <option value="0">Scientific (Least significant figures)
+        <option value="$">Money (Round to the penny)
+    </select
+    ><button id="clear">Clear</button
 
     ><button class="operator">+</button
     ><button class="minus">-</button
@@ -110,7 +78,7 @@ precision<br>
     ><button class="operand">4</button
     ><button class="operand">5</button
     ><button class="operand">6</button
-    ><button class="exponent">×10</button
+    ><button class="exponent">×10<sup>x</sup></button
 
     ><button class="operand">1</button
     ><button class="operand">2</button
@@ -130,6 +98,8 @@ Bugs:
 
 There is some weirdness involving proper focus (changing precision instead of entering numbers)
 prevent backspace on calculated numbers
+Clear reset precision
+Make e display as x10supx
 
 Features:
 
@@ -160,7 +130,7 @@ function addEvent(el, evType, fn, bubble) {
 
 function touchclick(el, func, bubble) {
     bubble = !!bubble;
-    if (window.hasOwnProperty('ontouchstart') || window.hasOwnProperty('onmsgesturechange')) {
+    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
         el.addEventListener('touchstart', func, bubble);
     } else {
         addEvent(el, 'click', func, bubble);
@@ -500,5 +470,7 @@ function init() {
     paper.appendChild(makeRow());
     cursorBlink(true);
 }
+
 init();
+
 </script>
