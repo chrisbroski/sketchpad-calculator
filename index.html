@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html><!-- manifest="calc.appcache">-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -11,7 +11,7 @@
 <title>Sketchpad Calculator</title>
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
-h1 {margin: 0; font-size: 22px; width: 150px; }
+h1 {margin: 0; font-size: 22px; }
 
 button {
   -webkit-appearance: none;
@@ -48,18 +48,17 @@ button:active {background: #ddd; }
 #numberpad .exponent {font-size: 14px; line-height: 17px; }
 #numberpad .exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
 #numberpad #zero {width: 70px; }
-#numberpad #clear {width: 70px; }
-#numberpad #sigFigs {margin: 0; width: 70px; height: 50px; }
+#numberpad #clear {margin: 0; width: 70px; }
+#numberpad #sigFigs {margin: 0; border: 1px solid #aaa; border-radius: 0; width: 70px; height: 50px; float: left; }
 </style>
 
 <body>
 <div id="calculator">
 <h1>Sketchpad Calculator</h1>
-<pre id="test"></pre>
 
 <div id="numberpad">
     <select id="sigFigs">
-        <option value="" selected="selected">Precision
+        <option value="" selected="selected">Precision (8, remove trailing)
         <option value="0">Scientific (Least significant figures)
         <option value="$">Money (Round to the penny)
     </select
@@ -96,9 +95,8 @@ button:active {background: #ddd; }
 /*
 Bugs:
 
-There is some weirdness involving proper focus (changing precision instead of entering numbers)
 prevent backspace on calculated numbers
-Clear reset precision
+Clear resets precision
 Make e display as x10supx
 
 Features:
@@ -263,6 +261,16 @@ function calculateRecent() {
         sigFig = 0,
         sigFigs = 0;
 
+    function trimE(num) {
+        var aNum = num.split('e');
+        if (aNum.length === 1) {
+            return num;
+        }
+        if (aNum[1] === "" || aNum[1] === "-" || aNum[1] === "+") {
+            return aNum[0];
+        }
+    }
+
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
         spans = rows[searchRow].getElementsByTagName('span');
         sigFig = countSigFigs(spans[1].innerHTML);
@@ -272,7 +280,7 @@ function calculateRecent() {
         if (sigFigs === 0 || sigFig < sigFigs) {
             sigFigs = sigFig;
         }
-        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
+        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + trimE(spans[1].innerHTML) + ' ' + calcString;
         searchRow = searchRow - 1;
     }
     console.log(calcString);
