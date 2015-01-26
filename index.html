@@ -13,15 +13,7 @@
 html {padding: 5px; font-family: droid sans, sans-serif; }
 h1 {margin: 0; font-size: 22px; }
 
-button {
-  -webkit-appearance: none;
-  -webkit-border-radius: 0;
-  background-color: #eee;
-  border: 1px solid #aaa;
-}
-button:active {background: #ddd; }
-
-#paper {font: 18px monospace; width: 152px;}
+#paper {padding: 0.5em 0 0 0; font: 18px monospace; width: 152px;}
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 0.5em;}
 #paper > div span.operand {cursor: pointer; }
@@ -38,18 +30,28 @@ button:active {background: #ddd; }
     position: fixed; bottom: 10px;
 }
 #numberpad button {
-    margin: 0; padding: 0; 
-    font: 16px serif;
+    margin: 0; padding: 0;
+    -webkit-appearance: none; -webkit-border-radius: 0;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    font: 16px/15px serif;
     width: 35px; height: 50px;
     text-align: center;
-    line-height: 15px; 
 }
+#numberpad button:active {background: #ddd; }
+#numberpad button:focus {outline: 0 none; }
 #numberpad button.equals {height: 100px; float: right; }
-#numberpad .exponent {font-size: 14px; line-height: 17px; }
-#numberpad .exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
-#numberpad #zero {width: 70px; }
-#numberpad #clear {margin: 0; width: 70px; }
-#numberpad #sigFigs {margin: 0; border: 1px solid #aaa; border-radius: 0; width: 70px; height: 50px; float: left; }
+#numberpad button.exponent {font-size: 14px; line-height: 17px; }
+#numberpad button.exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
+#numberpad #zero, #numberpad #clear {width: 70px; }
+#numberpad #sigFigs {
+    margin: 0;
+    -webkit-appearance: none; -webkit-border-radius: 0;
+    border: 1px solid #aaa;
+    background: #eee;
+    width: 70px; height: 50px;
+    float: left;
+}
 </style>
 
 <body>
@@ -112,6 +114,10 @@ var activeRow = 0,
     blinkerOn = true,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
     operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''};
+
+if (typeof console === "undefined" || typeof console.log === "undefined") {
+    window.console = {log: function () {}};
+}
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
