@@ -117,6 +117,15 @@ function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+function C$(fldNm) {
+    var oRe = new RegExp("[;\\s]" + fldNm + "=([^;]*)", "i"),
+        fldVal = oRe.exec("; " + document.cookie);
+    if (fldVal) {
+        return decodeURIComponent(fldVal[1]);
+    }
+    return "";
+}
+
 function addEvent(el, evType, fn, bubble) {
     bubble = bubble || false;
     if (el.addEventListener) {
@@ -269,6 +278,7 @@ function calculateRecent() {
         if (aNum[1] === "" || aNum[1] === "-" || aNum[1] === "+") {
             return aNum[0];
         }
+        return num;
     }
 
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
@@ -477,9 +487,13 @@ function init() {
     addEvent(document.getElementById('clear'), 'click', function () {
         location.reload(true);
     });
+    addEvent(document.getElementById('sigFigs'), 'change', function () {
+        document.cookie = 'precision=' + document.getElementById('sigFigs').value;
+    });
 
     paper.appendChild(makeRow());
     cursorBlink(true);
+    document.getElementById('sigFigs').value = C$('precision');
 }
 
 init();
