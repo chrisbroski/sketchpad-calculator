@@ -22,34 +22,39 @@ Prototype UI
 
 I built and deployed my first attempt to [GitHub pages](http://chrisbroski.github.io/sketchpad-calculator/sketchpad-calc.html)
 
-###It's Buggy
+Making a proof-of-concept UI can require a lot of self-discipline. You must implement all features that will allow you to assess the viability, but leave out all features, no matter how important they might be to the final version, that are not part of the core concept, or are direct requirements to the core concept. I decided to neglect:
 
-It's a proof-of-concept meant for UI research and still far from a commercial product. 
+###No Mobile Version
+
+Even though the entire point of the project is make a UI for a mobile calculator, designing and testing mobile web is slower and more complex than for the desktop. To increase the speed of testing iterations, I decided to wait until I was happy with a desktop version before working on the mobile interface.
+
+###No Backspace/Delete
+
+Being able to fix minor errors is a great feature for the final version, but for testing? I am just going to use random numbers to test with anyhow so I don't really even need it to calculate correctly to test the UI.
 
 ###Features
 
-I only wanted critical features, or ones that could be uniquely demonstrated in this type of UI. I chose:
+The features that I decided to include were:
 
-* Blinking indicator of active input area.
-* Manual entry using the keypad of a computer keyboard.
+* Blinking indicator (cursor) at active input area.
+* Manual entry using the keypad of a computer keyboard only - no touchscreen numberpad yet.
 * Operators for addition, subtraction, multiplication, and division only.
 * Allow positive, negative, and decimal numbers (no scientific notation entry).
 * Running history of all calculations in the active and previous calculations.
-* No "order of operation" - calculations are executed in top-to-bottom order only.
 * Clicking on a number in history enters that number in the active calculation.
 * Specify the amount of precision for reasonable rounding.
 
-Most of these features are hopefully self-explanatory so I'll only talk about a couple that I think deserve mention.
+Most of these features are predictable but the need for a couple unexpected features arised during development.
 
 ####Click History to Insert Into Active Calculation
 
-This is a fancy feature, and I had said that I wanted to keep it simple. I justified adding this because the running history of past calculations just screams for this ability. (If my experimental UI doesn't bring anything new and cool to the table, what is it's value?) This was a pain point for me when using the 1-at-a-time calculations of traditional calculator. I always seemed to be re-entering numbers that I had recently seen on the screen, but were now lost to the void.
+This is definitely a fancy feature, and I had promised myself to keep it simple, but after a little use of the interface, the running history of past calculations just screamed for this ability. (And if my experimental UI doesn't bring anything new and cool to the table, what is the point of it?) This is exactly the kind of emergent feature I was hoping to discover while experimenting with the new interface. The lack of this functionality was also a pain point for me when using the old fashioned 1-at-a-time calculations of the traditional calculator. I always seemed to be re-entering numbers over and over that I had just seen on the screen, but were now lost to the void.
 
 ####Custom Precision Rounding
 
-This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce are large amount of digits after the decimal that are nonsensical and hard to read. Also, with JavaScript converting numbers to floating-point you can get soem unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from Chemists it seems) understands how to use significant figures to determine the proper precision of a the final result.
+This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from Chemists it seems) understands how to use significant figures to determine the proper precision of a final result.
 
-I'd like to say I solved this, but I can't say that, because I didn't. So instead, in the spirit of experimentation, I implemented a bunch of solutions. My favorite one (labelled "proper") keeps track of the number with the least amount of significant figures in the active calculation and then rounds to that precision. As much as it is "proper" is is awkward to work with. All results are forced to exponential notation and god forbid if you include a single-digit operand that dumps the result down to a single digit of precision. I included some fixed amounts of precision (2 through 14) that seems to work OK. Calculators have their own weird formatting rules that round indiscriminate of significant figures. I threw together something that works like that and labelled it "vulgar." I reluctantly admit that it gives the most intuitive results. At least I got to name it something derogatory, so that makes me feel a little better.
+I'd like to say I solved this, but I can't say that, because I didn't. So instead, in the spirit of experimentation, I implemented a bunch of solutions. My favorite one (labelled "proper") keeps track of the number with the least amount of significant figures in the active calculation and then rounds to that precision. As much as it is "proper", it is awkward to work with. All results are forced to exponential notation and god forbid if you include a single-digit operand that dumps the precision down to 1. I included some fixed amounts of precision (2 through 14) that seems to work OK. Calculators have their own weird formatting rules that round indiscriminate of significant figures. I threw together something that works like that and labelled it "vulgar." I reluctantly admit that it gives the most intuitive results. At least I got to name it something derogatory, so that makes me feel a little better.
 
 ###What I Left Out
 
