@@ -1,24 +1,26 @@
 Sketchpad Calculator
 ====================
 
-I was doing some quick math with a pencil and pad of paper the other day, then launched a calculator on my phone to do some of the more complicated calculations. This made me wonder why I needed to use both. When calculators were first developed, they were miracles of engineering. But the newness of the technology limited the user interface. We have grown up using calculators how they were designed, but not asking if there is a better way.
+The other day I needed to do some simple calculations. I don't remember if it was to figure out the amount of material I needed for home improvements, to calculate the best value per item for something I needed to purchase, or just helping my daughter with her arithmetic homework. I found a pen and paper to set up the problem, then used the default calculator on my Android phone to perform the calculation. It struck me that I had this amazing hand-held computer at my disposal, but I still needed pen and paper. I saw and need and a challenge. Could I design a calculator UI that would fill need I had to also use paper?
 
-Now that building a fancy UI can be done by anyone with a web browser and text editor (and arithmetic is a core feature of any programming language) maybe it is time to revisit the design of this common UI to explore methods of making it more intuitive.
+When calculators were first developed, they were miracles of engineering. But the newness of the technology limited the user interface. We have grown up using calculators how they were designed, but not asking if there is a better way. I decided to start asking.
+
+Building a custom UI can be done by anyone with a web browser and text editor (and arithmetic is a core feature of any programming language, so there is no need to re-invent that.) I first wanted to build the simplest implementation of my notepad/pen/calculator hybrid idea quickly, so I could assess if I was wasting my time or if there was potential.
 
 The Goal
 --------
 
-I wanted to build a software UI that mimics how a person might perform simple calculations on a piece of paper. Once a minimum viable proof of concept is finished, use it to answer some questions:
+Before I started coding, I decided on the questions that I wanted my proof-of-concept to answer.
 
-* What are the benefits over traditional calculator interfaces? 
+* What are the benefits of this design over traditional calculator interfaces?
 * What are the weaknesses? Where does it fail?
-* Though it was never intended to be a tool for all types of calculations, what features are needed to make it useful for common use?
-* Does it show enough promise to continue research and development, or are there clear deal-breakers that make the approach inherently flawed.
+* Though it is not intended to be a tool for all types of calculations, what core features would be needed for common use?
+* Does it show enough promise to continue research and development, or are there clear deal-breakers that make the approach inherently flawed?
 
-Development
------------
+Prototype UI
+------------
 
-If you'd like to just right to the wireframe prototype, it's on my [GitHub pages](http://chrisbroski.github.io/sketchpad-calculator/sketchpad-calc.html) But remember:
+I built and deployed my first attempt to [GitHub pages](http://chrisbroski.github.io/sketchpad-calculator/sketchpad-calc.html)
 
 ###It's Buggy
 
