@@ -83,6 +83,9 @@ As far as I can guess, adding backspace and mobile UI could make this a viable v
 
 The new UI is promising, amd probably worth spending the time to make a proper version.
 
-Building Version 1.0
+Creating Version 1.0
 ====================
 
+May I present the latest <a href="http://chrisbroski.github.io/sketchpad-calculator/">Sketchpad Calculator</a>. There are no colors or fancy logos yet, but I strived to make it look nice in a simple fashion. It should look very different the the original proof-of-concept, and that's a good thing. PoCs should only be made to test specific features quickly. If your final product is not significantly different, then I question how much was learned from the initial prototype.
+
+Like I wanted, I added a backspace feature and a touchscreen keypad. I narrowed down 3 rounding options: a default that is close to what typical calculators do (8 numbers of precision and trimming trailing zeros after the decimal point) true scientific (round to the precision of the least precise number) and a fixed two places after the decimal point for monetary math.
