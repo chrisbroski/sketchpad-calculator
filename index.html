@@ -27,7 +27,7 @@ h1 {margin: 0; font-size: 22px; }
     margin: 0 0 0 157px; padding: 2px;
     background: #000;
     width: 140px;
-    position: fixed; bottom: 10px;
+    position: fixed; bottom: 10px; right: 10px;
 }
 #numberpad button {
     margin: 0; padding: 0;
@@ -276,15 +276,17 @@ function calculateRecent() {
         sigFig = 0,
         sigFigs = 0;
 
-    function trimE(num) {
+    function trimOperand(num) {
         var aNum = num.split('e');
+        aNum[0] = aNum[0].replace(/^0*/g, '');
+        
         if (aNum.length === 1) {
-            return num;
+            return aNum[0];
         }
         if (aNum[1] === "" || aNum[1] === "-" || aNum[1] === "+") {
             return aNum[0];
         }
-        return num;
+        return aNum.join('e');
     }
 
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
@@ -296,7 +298,7 @@ function calculateRecent() {
         if (sigFigs === 0 || sigFig < sigFigs) {
             sigFigs = sigFig;
         }
-        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + trimE(spans[1].innerHTML) + ' ' + calcString;
+        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + trimOperand(spans[1].innerHTML) + ' ' + calcString;
         searchRow = searchRow - 1;
     }
     console.log(calcString);
