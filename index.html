@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html manifest="calc.appcache"
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -98,7 +98,6 @@ h1 {margin: 0; font-size: 22px; }
 Bugs:
 
 prevent backspace on calculated numbers
-Clear resets precision
 Make e display as x10supx
 
 Features:
@@ -385,10 +384,16 @@ function hitEquals() {
 }
 
 function removeOperand() {
-    var spans = getSpans();
+    var spans = getSpans(), prevRow, isResult = false;
+    if (activeRow > 0) {
+        prevRow = paper.getElementsByTagName('div')[activeRow - 1];
+        if (prevRow.className === 'equals') {
+            isResult = true;
+        }
+    }
 
-    // If there is no number, exit.
-    if (!spans[1].innerHTML) {
+    // If there is no number, or number is a result, exit.
+    if (!spans[1].innerHTML || isResult) {
         return;
     }
 
@@ -492,10 +497,10 @@ function init() {
     addEvent(document.body, 'keypress', keyEnter);
     addEvent(paper, 'click', clickEnter);
     touchclick(document.getElementById('numberpad'), clickEnter);
-    addEvent(document.getElementById('clear'), 'click', function () {
+    addEvent(document.getElementById('clear'), 'click', function clear() {
         location.reload(true);
     });
-    addEvent(document.getElementById('sigFigs'), 'change', function () {
+    addEvent(document.getElementById('sigFigs'), 'change', function changePrecision() {
         document.cookie = 'precision=' + document.getElementById('sigFigs').value;
     });
 
