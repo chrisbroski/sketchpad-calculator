@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html><!-- manifest="calc.appcache">-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -94,18 +94,8 @@ h1 {margin: 0; font-size: 22px; }
 </div>
 
 <script>
-/*
-Bugs:
-
-prevent backspace on calculated numbers
-Make e display as x10supx
-
-Features:
-
-backspace through previous lines
-
-*/
 /*jslint browser: true, devel: true, evil: true, sloppy: true */
+
 var activeRow = 0,
     paper = document.getElementById('paper'),
     justCalculated = false,
@@ -167,6 +157,16 @@ function cursorBlink(resetBlink) {
     blinkId = window.setTimeout(cursorBlink, 600);
 }
 
+function newCalculation() {
+    if (justCalculated) {
+        justCalculated = false;
+        addRow('new');
+        addRow();
+        return true;
+    }
+    return false;
+}
+
 function isPartialNumber(n) {
     var aNumPieces;
     // 1.7976931348623157e+308 to 5e-324
@@ -175,35 +175,18 @@ function isPartialNumber(n) {
     }
 
     function isExponent(ex) {
-        // is integer 0 - 300 starting with +, -, or a number
-        if (ex === '-' || ex === '+' || ex === '') {
-            return true;
-        }
-        if (!isNumber(ex)) {
-            return false;
-        }
-        if (ex % 1 !== 0) {
-            return false;
-        }
-        if (ex < 0 || ex > 300) {
-            return false;
-        }
-        return true;
+        // is integer 0 - 99 starting with +, -, or a number
+        var reExponent = /^[+-]{0,1}\d{0,2}$/;
+        return reExponent.test(ex);
     }
 
-    // partial exponent
-    // (legit full number) + e (+/-) (0 - 100)
+    // partial exponent: (legit full number) + e (+/-) (0 - 99)
     aNumPieces = n.split('e');
     if (aNumPieces.length === 2) {
-        if (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1])) {
-            return true;
-        }
+        return (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1]));
+    } else {
+        return isNumber(n);
     }
-
-    if (!isNumber(n)) {
-        return false;
-    }
-    return true;
 }
 
 function makeRow() {
@@ -229,6 +212,7 @@ function addRow(className, operatorValue, operandValue) {
     paper.appendChild(newRow);
     activeRow = activeRow + 1;
     cursorBlink(true);
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function countSigFigs(num) {
@@ -273,7 +257,8 @@ function calculateRecent() {
         spans,
         sigFigsVal = document.getElementById('sigFigs').value,
         sigFig = 0,
-        sigFigs = 0;
+        sigFigs = 0,
+        result;
 
     function trimOperand(num) {
         var aNum = num.split('e');
@@ -301,19 +286,28 @@ function calculateRecent() {
         searchRow = searchRow - 1;
     }
     console.log(calcString);
+    try {
+        result = eval(calcString);
+    } catch (e) {
+        newCalculation();
+        addRow('new');
+        addRow();
+        throw e;
+        return;
+    }
 
     if (sigFigsVal === '') {
-        return toVulgar(eval(calcString));
+        return toVulgar(result);
     }
 
     if (sigFigsVal === '$') {
-        return eval(calcString).toFixed(2);
+        return result.toFixed(2);
     }
 
-    if (sigFigsVal === '0') {
-        sigFigsVal = sigFigs;
-    }
-    return eval(calcString).toPrecision(+sigFigsVal);
+    //if (sigFigsVal === '0') {
+    //    sigFigsVal = sigFigs;
+    //}
+    return result.toPrecision(sigFigs);
 }
 
 function enterOperand(digit, replace) {
@@ -331,15 +325,11 @@ function enterOperand(digit, replace) {
         return;
     }
 
-    if (justCalculated) {
-        justCalculated = false;
-        addRow('new');
-        addRow();
+    if (newCalculation()) {
         spans = getSpans();
     }
 
     spans[1].innerHTML = newNumber;
-    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function enterOperator(symbol) {
@@ -362,38 +352,25 @@ function enterOperator(symbol) {
     } else {
         addRow('', operators[symbol]);
     }
-    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function hitEquals() {
-    // if just calculated, start a new row
-    if (justCalculated) {
-        justCalculated = false;
-        addRow('new');
-        addRow();
-        window.scrollTo(0, document.body.scrollHeight);
-        return;
+    var val;
+    if (!newCalculation()) {
+        val = getSpans()[1].innerHTML;
+        if (/*val !== '-' && */isPartialNumber(val)) {
+            addRow('equals');
+            addRow('', '', calculateRecent());
+            justCalculated = true;
+        }
     }
-
-    if (getSpans()[1].innerHTML) {
-        addRow('equals');
-        addRow('', '', calculateRecent());
-        justCalculated = true;
-    }
-    window.scrollTo(0, document.body.scrollHeight);
 }
 
 function removeOperand() {
-    var spans = getSpans(), prevRow, isResult = false;
-    if (activeRow > 0) {
-        prevRow = paper.getElementsByTagName('div')[activeRow - 1];
-        if (prevRow.className === 'equals') {
-            isResult = true;
-        }
-    }
+    var spans = getSpans();
 
     // If there is no number, or number is a result, exit.
-    if (!spans[1].innerHTML || isResult) {
+    if (!spans[1].innerHTML || justCalculated) {
         return;
     }
 
@@ -403,7 +380,6 @@ function removeOperand() {
 
 function isMinusOperand() {
     var spans = getSpans();
-
     if (spans[1].innerHTML.slice(-1) === 'e') {
         return true;
     }
@@ -414,68 +390,13 @@ function isMinusOperand() {
     return true;
 }
 
-function keyEnter(e) {
-    var key = e.key || String.fromCharCode(e.keyCode),
-        reOperand = /^[0-9\.e]$/,
-        reOperator = /^[+*\/]$/;
-
-    // [-] matches both number and operator
-    if (key === '-') {
+function handleMinus(command) {
+    if (command === '-' || command === 'minus') {
         if (isMinusOperand()) {
-            enterOperand(key);
+            enterOperand('-');
         } else {
-            enterOperator(key);
+            enterOperator('-');
         }
-    }
-
-    // Operator
-    if (key.match(reOperator)) {
-        enterOperator(key);
-    }
-
-    // Number
-    if (key.match(reOperand)) {
-        enterOperand(key);
-    }
-
-    // Calculate
-    if (e.keyCode === 13 || e.keyCode === 61) {
-        if (isNumber(getSpans()[1].innerHTML)) {
-            hitEquals();
-        }
-    }
-}
-
-function clickEnter(e) {
-    var el = e.target || e.srcElement,
-        className = el.className;
-
-    if (el.tagName === 'BUTTON') {
-        if (className === 'operand') {
-            enterOperand(el.innerHTML);
-        }
-        if (className === 'minus') {
-            // determine if operator or operand
-            if (isMinusOperand()) {
-                enterOperand('-');
-            } else {
-                enterOperator('-');
-            }
-        }
-        if (className === 'operator') {
-            enterOperator(operatorSymbols[el.innerHTML]);
-        }
-        if (className === 'equals') {
-            hitEquals();
-        }
-        if (className === 'backspace') {
-            removeOperand();
-        }
-        if (className === 'exponent') {
-            enterOperand('e');
-        }
-    } else {
-        enterOperand(el.innerHTML, true);
     }
 }
 
@@ -492,7 +413,58 @@ function supressBrowserHotKeys(e) {
     }
 }
 
+function keyEnter(e) {
+    var key = e.key || String.fromCharCode(e.keyCode);
+
+    // [-] matches both number and operator
+    handleMinus(key);
+
+    // Operator
+    if (key.match(/^[+*\/]$/)) {
+        enterOperator(key);
+    }
+
+    // Number
+    if (key.match(/^[0-9\.e]$/)) {
+        enterOperand(key);
+    }
+
+    // Calculate
+    if (e.keyCode === 13 || e.keyCode === 61) {
+        hitEquals();
+    }
+}
+
+function clickEnter(e) {
+    var el = e.target || e.srcElement,
+        clickClass = el.className,
+        clickValue = el.innerHTML;
+
+    if (el.tagName === 'BUTTON') {
+        if (clickClass === 'operand') {
+            enterOperand(clickValue);
+        }
+
+        handleMinus(clickClass);
+        if (clickClass === 'operator') {
+            enterOperator(operatorSymbols[clickValue]);
+        }
+        if (clickClass === 'equals') {
+            hitEquals();
+        }
+        if (clickClass === 'backspace') {
+            removeOperand();
+        }
+        if (clickClass === 'exponent') {
+            enterOperand('e');
+        }
+    } else {
+        enterOperand(clickValue, true);
+    }
+}
+
 function init() {
+    // attach events
     addEvent(document.body, 'keydown', supressBrowserHotKeys);
     addEvent(document.body, 'keypress', keyEnter);
     addEvent(paper, 'click', clickEnter);
@@ -504,6 +476,7 @@ function init() {
         document.cookie = 'precision=' + document.getElementById('sigFigs').value;
     });
 
+    // initialize UI
     paper.appendChild(makeRow());
     cursorBlink(true);
     document.getElementById('sigFigs').value = C$('precision');
