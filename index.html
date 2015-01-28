@@ -358,7 +358,7 @@ function hitEquals() {
     var val;
     if (!newCalculation()) {
         val = getSpans()[1].innerHTML;
-        if (/*val !== '-' && */isPartialNumber(val)) {
+        if (val !== '-' && isPartialNumber(val)) {
             addRow('equals');
             addRow('', '', calculateRecent());
             justCalculated = true;
