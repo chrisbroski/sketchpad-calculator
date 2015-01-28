@@ -11,17 +11,9 @@
 <title>Sketchpad Calculator</title>
 <style>
 html {padding: 5px; font-family: droid sans, sans-serif; }
-h1 {margin: 0; font-size: 22px; width: 150px; }
+h1 {margin: 0; font-size: 22px; }
 
-button {
-  -webkit-appearance: none;
-  -webkit-border-radius: 0;
-  background-color: #eee;
-  border: 1px solid #aaa;
-}
-button:active {background: #ddd; }
-
-#paper {font: 18px monospace; width: 152px;}
+#paper {padding: 0.5em 0 0 0; font: 18px monospace; width: 152px;}
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 0.5em;}
 #paper > div span.operand {cursor: pointer; }
@@ -35,31 +27,44 @@ button:active {background: #ddd; }
     margin: 0 0 0 157px; padding: 2px;
     background: #000;
     width: 140px;
-    position: fixed; bottom: 10px;
+    position: fixed; bottom: 10px; right: 10px;
 }
 #numberpad button {
-    margin: 0; padding: 0; 
-    font: 16px serif;
+    margin: 0; padding: 0;
+    -webkit-appearance: none; -webkit-border-radius: 0;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    font: 16px/15px serif;
     width: 35px; height: 50px;
     text-align: center;
-    line-height: 15px; 
 }
+#numberpad button:active {background: #ddd; }
+#numberpad button:focus {outline: 0 none; }
 #numberpad button.equals {height: 100px; float: right; }
-#numberpad .exponent {font-size: 14px; line-height: 17px; }
-#numberpad .exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
-#numberpad #zero {width: 70px; }
-#numberpad #clear {width: 70px; }
-#numberpad #sigFigs {margin: 0; width: 70px; height: 50px; }
+#numberpad button.exponent {font-size: 14px; line-height: 17px; }
+#numberpad button.exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
+#numberpad #zero, #numberpad #clear {width: 70px; }
+#numberpad #sigFigs {
+    margin: 0;
+    -webkit-appearance: none; -webkit-border-radius: 0;
+    border: 1px solid #aaa;
+    background: #eee;
+    width: 70px; height: 50px;
+    float: left;
+}
 </style>
 
 <body>
 <div id="calculator">
 <h1>Sketchpad Calculator</h1>
-<pre id="test"></pre>
 
 <div id="numberpad">
     <select id="sigFigs">
+<<<<<<< HEAD
         <option value="" selected="selected">Precision (8 max)
+=======
+        <option value="" selected="selected">Precision (8, remove trailing)
+>>>>>>> 7b1cd49ba09dc65ee6d4ca3f884312ec11513ddc
         <option value="0">Scientific (Least significant figures)
         <option value="$">Money (Round to the penny)
     </select
@@ -96,9 +101,7 @@ button:active {background: #ddd; }
 /*
 Bugs:
 
-There is some weirdness involving proper focus (changing precision instead of entering numbers)
 prevent backspace on calculated numbers
-Clear reset precision
 Make e display as x10supx
 
 Features:
@@ -115,8 +118,21 @@ var activeRow = 0,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
     operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''};
 
+if (typeof console === "undefined" || typeof console.log === "undefined") {
+    window.console = {log: function () {}};
+}
+
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function C$(fldNm) {
+    var oRe = new RegExp("[;\\s]" + fldNm + "=([^;]*)", "i"),
+        fldVal = oRe.exec("; " + document.cookie);
+    if (fldVal) {
+        return decodeURIComponent(fldVal[1]);
+    }
+    return "";
 }
 
 function addEvent(el, evType, fn, bubble) {
@@ -263,6 +279,19 @@ function calculateRecent() {
         sigFig = 0,
         sigFigs = 0;
 
+    function trimOperand(num) {
+        var aNum = num.split('e');
+        aNum[0] = aNum[0].replace(/^0*/g, '');
+        
+        if (aNum.length === 1) {
+            return aNum[0];
+        }
+        if (aNum[1] === "" || aNum[1] === "-" || aNum[1] === "+") {
+            return aNum[0];
+        }
+        return aNum.join('e');
+    }
+
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
         spans = rows[searchRow].getElementsByTagName('span');
         sigFig = countSigFigs(spans[1].innerHTML);
@@ -272,7 +301,7 @@ function calculateRecent() {
         if (sigFigs === 0 || sigFig < sigFigs) {
             sigFigs = sigFig;
         }
-        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + spans[1].innerHTML + ' ' + calcString;
+        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + trimOperand(spans[1].innerHTML) + ' ' + calcString;
         searchRow = searchRow - 1;
     }
     console.log(calcString);
@@ -359,10 +388,16 @@ function hitEquals() {
 }
 
 function removeOperand() {
-    var spans = getSpans();
+    var spans = getSpans(), prevRow, isResult = false;
+    if (activeRow > 0) {
+        prevRow = paper.getElementsByTagName('div')[activeRow - 1];
+        if (prevRow.className === 'equals') {
+            isResult = true;
+        }
+    }
 
-    // If there is no number, exit.
-    if (!spans[1].innerHTML) {
+    // If there is no number, or number is a result, exit.
+    if (!spans[1].innerHTML || isResult) {
         return;
     }
 
@@ -466,12 +501,16 @@ function init() {
     addEvent(document.body, 'keypress', keyEnter);
     addEvent(paper, 'click', clickEnter);
     touchclick(document.getElementById('numberpad'), clickEnter);
-    addEvent(document.getElementById('clear'), 'click', function () {
+    addEvent(document.getElementById('clear'), 'click', function clear() {
         location.reload(true);
+    });
+    addEvent(document.getElementById('sigFigs'), 'change', function changePrecision() {
+        document.cookie = 'precision=' + document.getElementById('sigFigs').value;
     });
 
     paper.appendChild(makeRow());
     cursorBlink(true);
+    document.getElementById('sigFigs').value = C$('precision');
 }
 
 init();
