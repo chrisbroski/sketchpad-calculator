@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html><!-- manifest="calc.appcache">-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -13,6 +13,8 @@
 html {padding: 5px; font-family: droid sans, sans-serif; }
 h1 {margin: 0; font-size: 22px; }
 
+#calculator {max-width: 500px; margin: 0 auto; }
+
 #paper {padding: 0.5em 0 0 0; font: 18px monospace; width: 152px;}
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 0.5em;}
@@ -24,10 +26,10 @@ h1 {margin: 0; font-size: 22px; }
 #paper > div.new {height: 1em; }
 
 #numberpad {
-    margin: 0 0 0 157px; padding: 2px;
+    margin: 0; padding: 2px;
     background: #000;
     width: 140px;
-    position: fixed; bottom: 10px; right: 10px;
+    position: fixed; bottom: 10px; left: 53%;
 }
 #numberpad button {
     margin: 0; padding: 0;
