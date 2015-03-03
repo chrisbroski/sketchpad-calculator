@@ -132,6 +132,15 @@ function addEvent(el, evType, fn, bubble) {
     }
 }
 
+function getEventTarget(e) {
+    var targ;
+    targ = e.target || e.srcElement;
+    if (targ.nodeType === 3) { // defeat Safari bug
+        targ = targ.parentNode;
+    }
+    return targ;
+}
+
 function touchclick(el, func, bubble) {
     bubble = !!bubble;
     if ('ontouchstart' in window || 'onmsgesturechange' in window) {
@@ -438,7 +447,7 @@ function keyEnter(e) {
 }
 
 function clickEnter(e) {
-    var el = e.target || e.srcElement,
+    var el = getEventTarget(e),
         clickClass = el.className,
         clickValue = el.innerHTML;
 
