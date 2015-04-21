@@ -7,13 +7,13 @@ It struck me - what the heck is happening? If the calculator was so great, why a
 
 ###Why Current Calculator Apps Suck
 
-When calculators were first developed, they were miracles of engineering, but the immaturity of the technology had limited options for the user interface. We had to be taught how to use a calculator. We changed our behavior to match the interface of the first calculators, and it was well worth the effort. But this was decades ago, and the calculator interface has stayed the same. Skimming through calculator apps in the Google store, the overwhelingly most common UI design is a photo realistic picture of a calculator. This is not what innovation looks like. We now have the technology to make a mathematical interface intuitive and effortless, and that is exactly what I want to attempt.
+When calculators were first developed, they were miracles of engineering, but the immaturity of the technology had limited options for the user interface. We had to be taught how to use a calculator. We changed our behavior to match the interface of the first calculators, and it was well worth the effort. But this was decades ago, and the calculator interface has stayed the same. Skimming through calculator apps in the Google store, the overwhelmingly most common UI design is a photo realistic picture of a calculator. This is not what innovation looks like. We now have the technology to make a mathematical interface intuitive and effortless, and that is exactly what I want to attempt.
 
 ###Prototype UI
 
 Writers scribble a first draft; painters begin with a rough sketch. I have found that a powerful start to a new design is to build the first solution that comes to mind as quickly as possible, then listen to what that teaches you. I based my first design on how math is done on a pad of paper. My goal was to create a digital UI that reproduces that exact same process step-by-step.
 
-Making a proof-of-concept UI can require a lot of self-discipline because it is going to look and work terribly. It will be a buggy, clunky, feature-poor hack that is nowhere near a viable product. That's OK. Get yourself psyched up for the inevitable suck. This is a research excercise, and the goal is to delve into the target problem as a first small step toward a solution. Don't show this to anyone. They wouldn't understand.
+Making a proof-of-concept UI can require a lot of self-discipline because it is going to look and work terribly. It will be a buggy, clunky, feature-poor hack that is nowhere near a viable product. That's OK. Get yourself psyched up for the inevitable suck. This is a research exercise, and the goal is to delve into the target problem as a first small step toward a solution. Don't show this to anyone. They wouldn't understand.
 
 Another struggle when creating a fast first prototype is leaving out all features that are not the core, critical ones that you wish to test. The hard ones for me to leave out were:
 
@@ -23,7 +23,7 @@ Even though the entire point of the project is to make a better calculator for m
 
 ###Backspace/Delete
 
-Being able to fix minor errors will be a great feature in the final version, but for testing? No so much. I am going to use random numbers to test, so I don't even care if the results are calcuated correctly.
+Being able to fix minor errors will be a great feature in the final version, but for testing? No so much. I am going to use random numbers to test, so I don't even care if the results are calculated correctly.
 
 ###Features
 
@@ -62,23 +62,23 @@ A first prototype is an experiment with the most key question to be answered, "A
 
 ####Benefits
 
-Compared to a traditional calculator UI, having active and previous calcuations displayed is a clear and powerful improvement. (One-click entry of previous numbers is nice too.)
+Compared to a traditional calculator UI, having active and previous calculations displayed is a clear and powerful improvement. (One-click entry of previous numbers is nice too.)
 
 ####Weaknesses
 
-Inherent drawbacks (ones that can't be easily fixed with a little more work.) Doing complex scientific calculations are not appropriate to this UI, but that was not the intended type of calculation. You would probably want to use a different piece of software for performing more complex formal mathematics. The mess with precicion I can hopefully get a handle on, but there is no guarentee.
+Inherent drawbacks (ones that can't be easily fixed with a little more work.) Doing complex scientific calculations are not appropriate to this UI, but that was not the intended type of calculation. You would probably want to use a different piece of software for performing more complex formal mathematics. The mess with precision I can hopefully get a handle on, but there is no guarantee.
 
 As far as I can guess, adding backspace and mobile UI could make this a viable version 1.0.
 
 ####Conclusion
 
-The new UI is promising, amd probably worth spending the time to make a proper version.
+The new UI is promising, and probably worth spending the time to make a proper version.
 
 Creating Version 1.0
 ====================
 
-May I present the latest <a href="http://chrisbroski.github.io/sketchpad-calculator/">Sketchpad Calculator</a>. There are no colors or fancy logos yet, but I strived to make it look nice in a simple fashion. It should look very different the the original proof-of-concept, and that's a good thing. PoCs should only be made to test specific features quickly. If your final product is not significantly different, then I question how much was learned from the initial prototype.
+May I present the latest <a href="http://chrisbroski.github.io/sketchpad-calculator/">Sketchpad Calculator</a>. There are no colors or fancy logos yet, but I strived to make it look nice in a simple fashion. It should look very different than the original proof-of-concept, and that's a good thing. PoCs should only be made to test specific features quickly. If your final product is not significantly different, then I question how much was learned from the initial prototype.
 
 Like I wanted, I added a backspace feature and a touchscreen keypad. I narrowed down 3 rounding options: a default that is close to what typical calculators do (8 numbers of precision and trimming trailing zeros after the decimal point) true scientific (round to the precision of the least precise number) and a fixed two places after the decimal point for monetary math.
 
-I tested the UI on a iPhone 4 and an LG Intuition (5" 4x3 phablet) gave it an application cache and enabled it to be added to the home screen to run as a standalone app in mobile Safari and Chrome for Android. (The default Android browser doesn't allow adding web app icons to the home screen.) It is good enough for me to use it as my main calculator, and I am a pretty picky customer, especialy about my own work.
+I tested the UI on a iPhone 4 and an LG Intuition (5" 4x3 phablet) gave it an application cache and enabled it to be added to the home screen to run as a standalone app in mobile Safari and Chrome for Android. (The default Android browser doesn't allow adding web app icons to the home screen.) It is good enough for me to use it as my main calculator, and I am a pretty picky customer, especially about my own work.
