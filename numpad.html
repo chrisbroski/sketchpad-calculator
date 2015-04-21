@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html>
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-<link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -28,8 +27,8 @@ h1 {margin: 0; padding: 0.2em 0; font-size: 22px; background: #fff; position: fi
 #numberpad {
     margin: 0; padding: 2px;
     background: #000;
-    width: 120px;
-    position: fixed; bottom: 10px; left: 57%;
+    width: 140px;
+    position: fixed; bottom: 10px; left: 53%;
 }
 #numberpad button {
     margin: 0; padding: 0;
@@ -37,19 +36,21 @@ h1 {margin: 0; padding: 0.2em 0; font-size: 22px; background: #fff; position: fi
     background-color: #eee;
     border: 1px solid #aaa;
     font: 16px/15px serif;
-    width: 40px; height: 50px;
+    width: 35px; height: 50px;
     text-align: center;
 }
 #numberpad button:active {background: #ddd; }
 #numberpad button:focus {outline: 0 none; }
+#numberpad button.equals {height: 100px; float: right; }
 #numberpad button.exponent {font-size: 14px; line-height: 17px; }
 #numberpad button.exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
+#numberpad #zero, #numberpad #clear {width: 70px; }
 #numberpad #sigFigs {
     margin: 0;
     -webkit-appearance: none; -webkit-border-radius: 0;
     border: 1px solid #aaa;
     background: #eee;
-    width: 120px; height: 50px;
+    width: 140px; height: 50px;
     float: left;
 }
 </style>
@@ -67,27 +68,26 @@ h1 {margin: 0; padding: 0.2em 0; font-size: 22px; background: #fff; position: fi
 
     ><button class="operator">+</button
     ><button class="minus">-</button
-    ><button class="backspace">←</button
-    
     ><button class="operator">×</button
     ><button class="operator">÷</button
-    ><button class="exponent">×10<sup>x</sup></button
-    
+
     ><button class="operand">7</button
     ><button class="operand">8</button
     ><button class="operand">9</button
-    
+    ><button class="backspace">←</button
+
     ><button class="operand">4</button
     ><button class="operand">5</button
     ><button class="operand">6</button
-    
+    ><button class="exponent">×10<sup>x</sup></button
+
     ><button class="operand">1</button
     ><button class="operand">2</button
     ><button class="operand">3</button
-    
+    ><button class="equals">=</button
+
     ><button class="operand" id="zero">0</button
-    ><button class="operand">.</button
-    ><button class="equals">=</button>
+    ><button class="operand">.</button>
 </div>
 
 <div id="paper"></div>
