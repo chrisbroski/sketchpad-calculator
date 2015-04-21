@@ -51,7 +51,7 @@ h1 {margin: 0; font-size: 22px; }
     -webkit-appearance: none; -webkit-border-radius: 0;
     border: 1px solid #aaa;
     background: #eee;
-    width: 70px; height: 50px;
+    width: 140px; height: 50px;
     float: left;
 }
 </style>
@@ -66,7 +66,6 @@ h1 {margin: 0; font-size: 22px; }
         <option value="0">Scientific (Least significant figures)
         <option value="$">Money (Round to the penny)
     </select
-    ><button id="clear">Clear</button
 
     ><button class="operator">+</button
     ><button class="minus">-</button
@@ -104,7 +103,8 @@ var activeRow = 0,
     blinkId,
     blinkerOn = true,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
-    operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''};
+    operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''},
+    maxLines = 2000;
 
 if (typeof console === "undefined" || typeof console.log === "undefined") {
     window.console = {log: function () {}};
@@ -207,7 +207,7 @@ function makeRow() {
 }
 
 function addRow(className, operatorValue, operandValue) {
-    var newRow = makeRow();
+    var newRow = makeRow(), lines;
 
     // Stop the blinking
     window.clearTimeout(blinkId);
@@ -220,8 +220,16 @@ function addRow(className, operatorValue, operandValue) {
     if (operandValue) {
         newRow.getElementsByTagName('span')[1].innerHTML = operandValue;
     }
+    
+    // if there are more the maxLines divs, remove the top one
+    lines = paper.getElementsByTagName('div');
+    if (lines.length > maxLines) {
+        paper.removeChild(lines[0]);
+    } else {
+        activeRow = activeRow + 1;
+    }
+    
     paper.appendChild(newRow);
-    activeRow = activeRow + 1;
     cursorBlink(true);
     window.scrollTo(0, document.body.scrollHeight);
 }
@@ -480,9 +488,9 @@ function init() {
     addEvent(document.body, 'keypress', keyEnter);
     addEvent(paper, 'click', clickEnter);
     touchclick(document.getElementById('numberpad'), clickEnter);
-    addEvent(document.getElementById('clear'), 'click', function clear() {
+    /*addEvent(document.getElementById('clear'), 'click', function clear() {
         location.reload(true);
-    });
+    });*/
     addEvent(document.getElementById('sigFigs'), 'change', function changePrecision() {
         document.cookie = 'precision=' + document.getElementById('sigFigs').value;
     });
