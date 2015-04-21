@@ -3,7 +3,7 @@ Sketchpad Calculator
 
 The other day I needed to do some simple calculations. I can't remember if it was to find the amount of material needed for a home improvement, to calculate the best value for a purchase, or just helping my daughter with her math homework. I found a pen and paper to set up the problem, then used the default calculator on my Android phone to perform the calculation...
 
-It struck me - what the heck is happening? If the calculator was so great, why am I still using pen and paper? I examined my actions and saw that how I wanted to do calculations were incompatible with the calculator UI, but not inherently. Now I had a challenge: could I create a calculator UI to satify natural math tasks and eliminate my need for pad an paper?
+It struck me - what the heck is happening? If the calculator was so great, why am I still using pen and paper? I examined my actions and saw that how I wanted to do calculations were incompatible with the calculator UI, but not inherently. Now I had a challenge: could I create a calculator UI to enable the natural way people perform math tasks and eliminate my need for pad and paper?
 
 ###Why Current Calculator Apps Suck
 
