@@ -1,30 +1,21 @@
 Sketchpad Calculator
 ====================
 
-The other day I needed to do some simple calculations. I can't remember if it was to find the amount of material I needed for a home improvement, to calculate the best value per item for something I needed to purchase, or just helping my daughter with her arithmetic homework. I found a pen and paper to set up the problem, then used the default calculator on my Android phone to perform the calculation. It struck me that I had this amazing hand-held computer at my disposal, but I still needed pen and paper. I saw and need and a challenge. Could I design a calculator UI that would fill need I had to also use paper?
+The other day I needed to do some simple calculations. I can't remember if it was to find the amount of material needed for a home improvement, to calculate the best value for a purchase, or just helping my daughter with her math homework. I found a pen and paper to set up the problem, then used the default calculator on my Android phone to perform the calculation...
 
-When calculators were first developed, they were miracles of engineering. But the newness of the technology limited the user interface. We have grown up using calculators how they were designed, but not asking if there is a better way. I decided to start asking.
+It struck me - what the heck is happening? If the calculator was so great, why am I still using pen and paper? I examined my actions and saw that how I wanted to do calculations were incompatible with the calculator UI, but not inherently. Now I had a challenge: could I create a calculator UI to satify natural math tasks and eliminate my need for pad an paper?
 
-I took a quick look through Android calculator applications. Do you know what the overwhelingly most common UI design is? It is a photo realistic picture of a calculator. This is not what innovation looks like.
+###Why Current Calculator Apps Suck
 
-Today, building a custom UI can be done by anyone with a web browser and text editor (and arithmetic is a core feature of any programming language, so there is no need to re-invent that.) I first wanted to build the simplest implementation of my notepad/pen/calculator hybrid idea quickly, so I could assess if I was wasting my time or if there was potential.
+When calculators were first developed, they were miracles of engineering, but the immaturity of the technology had limited options for the user interface. We had to be taught how to use a calculator. We changed our behavior to match the interface of the first calculators, and it was well worth the effort. But this was decades ago, and the calculator interface has stayed the same. Skimming through calculator apps in the Google store, the overwhelingly most common UI design is a photo realistic picture of a calculator. This is not what innovation looks like. We now have the technology to make a mathematical interface intuitive and effortless, and that is exactly what I want to attempt.
 
-The Goal
---------
+###Prototype UI
 
-Before I started coding, I decided on the questions that I wanted my proof-of-concept to answer.
+Writers scribble a first draft; painters begin with a rough sketch. I have found that a powerful start to a new design is to build the first solution that comes to mind as quickly as possible, then listen to what that teaches you. I based my first design on how math is done on a pad of paper. My goal was to create a digital UI that reproduces that exact same process step-by-step.
 
-* What are the benefits of this design over traditional calculator interfaces?
-* What are the weaknesses? Where does it fail?
-* Though it is not intended to be a tool for all types of calculations, what core features would be needed for common use?
-* Does it show enough promise to continue research and development, or are there clear deal-breakers that make the approach inherently flawed?
+Making a proof-of-concept UI can require a lot of self-discipline because it is going to look and work terribly. It will be a buggy, clunky, feature-poor hack that is nowhere near a viable product. That's OK. Get yourself psyched up for the inevitable suck. This is a research excercise, and the goal is to delve into the target problem as a first small step toward a solution. Don't show this to anyone. They wouldn't understand.
 
-Prototype UI
-------------
-
-I built and deployed my first attempt to [GitHub pages](http://chrisbroski.github.io/sketchpad-calculator/sketchpad-calc.html)
-
-Making a proof-of-concept UI can require a lot of self-discipline. You must implement all features that will allow you to assess the viability, but leave out all features, no matter how important they might be to the final version, that are not part of the core concept, or are direct requirements to the core concept. I decided to leave out:
+Another struggle when creating a fast first prototype is leaving out all features that are not the core, critical ones that you wish to test. The hard ones for me to leave out were:
 
 ###Mobile Version
 
@@ -32,21 +23,21 @@ Even though the entire point of the project is to make a better calculator for m
 
 ###Backspace/Delete
 
-Being able to fix minor errors will be a great feature in the final version, but for testing? No so much. I am going to use random numbers to test, so I don't even need it to calculate the results correctly to assess the UI.
+Being able to fix minor errors will be a great feature in the final version, but for testing? No so much. I am going to use random numbers to test, so I don't even care if the results are calcuated correctly.
 
 ###Features
 
-The features that I decided to include were:
+The features that I ended up including were:
 
-* Blinking indicator (cursor) at active input area.
-* Manual entry using the keypad of a computer keyboard only - no touchscreen numberpad yet.
-* Operators for addition, subtraction, multiplication, and division only.
-* Allow positive, negative, and decimal numbers (no scientific notation entry).
-* Running history of all calculations in the active and previous calculations.
-* Clicking on a number in history enters that number in the active calculation.
-* Specify the amount of precision for reasonable rounding.
+* **Cursor** at active input area. I originally left this out, but quickly realized it is critical for the user to know what the heck is going on in the input area.
+* **Keyboard Input** - No touchscreen numberpad yet.
+* **Operators** for addition, subtraction, multiplication, and division only.
+* **No Exponents** - Only allow positive, negative, and decimal numbers.
+* **Running History** of all calculations always visible. This is the key new feature I want to evaluate.
+* **Entry From History** - Clicking on a number from history enters that number into the active calculation. This is fancy, but once the running history was implemented, the UI just screamed for this.
+* **Rounding** to reasonable precision. This was not originally anything a cared about, but once I started displaying results, it became clear this was a problem that needed dealing with.
 
-Most of these features are predictable but the need for a couple unexpected features arised during development.
+These were the features that I ended up with, not those that I started with. I said that building a first prototype was a learning experience and I learned a lot. Even though I needed to keep it simple, I discovered several features that were critical that I had previously not thought were important.
 
 ####Click History to Insert Into Active Calculation
 
@@ -54,32 +45,32 @@ This is definitely a fancy feature, and I had promised myself to keep it simple,
 
 ####Custom Precision Rounding
 
-This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from Chemists it seems) understands how to use significant figures to determine the proper precision of a final result.
+This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from chemists it seems) understands how to use significant figures to determine the proper precision of a final result.
 
 I'd like to say I solved this, but I can't say that, because I didn't. So instead, in the spirit of experimentation, I implemented a bunch of solutions. My favorite one (labelled "proper") keeps track of the number with the least amount of significant figures in the active calculation and then rounds to that precision. As much as it is "proper", it is awkward to work with. All results are forced to exponential notation and god forbid if you include a single-digit operand that dumps the precision down to 1. I included some fixed amounts of precision (2 through 14) that seems to work OK. Calculators have their own weird formatting rules that round indiscriminate of significant figures. I threw together something that works like that and labelled it "vulgar." I reluctantly admit that it gives the most intuitive results. At least I got to name it something derogatory, so that makes me feel a little better.
 
-###What I Left Out
+###My Prototype
 
-There are a few features that the prototype is begging for. If the results are promising, I will definitely add:
+I said that you should never show this to anyone because they will judge it against finished product and they'll think you are a terrible developer and give you no constructive feedback. I am going to break that rule and show it to you because we are savvy UI designers that get it:
 
-####Backspace
+[First Sketchpad Calculator Prototype](http://chrisbroski.github.io/sketchpad-calculator/sketchpad-calc.html)
 
-If you make a mistake now, your entire active calculation is broken. This is a key feature of any calculator (even the old one had "CE" which never quite worked how you thought it would.)
+###Results
+----------
 
-####Mobile UI
+A first prototype is an experiment with the most key question to be answered, "Are the results promising enough that I should I invest more effort in this design, or throw it away and start over?" Time to examine the benefits and drawbacks of the prototype.
 
-To make this happen, I need to design and build a touch screen number pad. It will be a lot of work, but having this available on my phone (application cached and icon on my home screen) is where it belongs.
+####Benefits
 
-Proof-of-Concept Results
-------------------------
+Compared to a traditional calculator UI, having active and previous calcuations displayed is a clear and powerful improvement. (One-click entry of previous numbers is nice too.)
 
-Now that I have some experience with the prototype, I answered my proposed questions.
+####Weaknesses
 
-As for benefits over the traditional calculator UI, having the active and previous calcuations displayed is a blatant improvement. (One-click entry of previous numbers is nice too.)
-
-Inherent drawbacks (ones that can't be easily fixed with a little more work) are few and you would want to use a different piece of software for performing more complex formal mathematics anyhow. The mess with precicion I can hopefully get a handle on, but there is no guarentee.
+Inherent drawbacks (ones that can't be easily fixed with a little more work.) Doing complex scientific calculations are not appropriate to this UI, but that was not the intended type of calculation. You would probably want to use a different piece of software for performing more complex formal mathematics. The mess with precicion I can hopefully get a handle on, but there is no guarentee.
 
 As far as I can guess, adding backspace and mobile UI could make this a viable version 1.0.
+
+####Conclusion
 
 The new UI is promising, amd probably worth spending the time to make a proper version.
 
