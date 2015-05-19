@@ -59,12 +59,17 @@ h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fi
 <h1>Sketchpad Calculator</h1>
 
 <div id="numberpad">
-    <select id="sigFigs">
+    <!--<select id="sigFigs">
         <option value="" selected="selected">Precision (8, remove trailing)
         <option value="0">Scientific (Least significant figures)
         <option value="$">Money (Round to the penny)
     </select
 
+    >-->
+    <button class="operand">$</button
+    ><button class="mystery" id="rollDice">⚅</button
+    ><button class="operand">π</button
+    
     ><button class="operator">+</button
     ><button class="minus">-</button
     ><button class="backspace">←</button
@@ -103,7 +108,9 @@ var activeRow = 0,
     blinkerOn = true,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
     operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''},
-    maxLines = 2000;
+    maxLines = 2000,
+    maxPrecision = 8,
+    dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 if (typeof console === "undefined" || typeof console.log === "undefined") {
     window.console = {log: function () {}};
@@ -180,9 +187,10 @@ function newCalculation() {
 function isPartialNumber(n) {
     var aNumPieces;
     // 1.7976931348623157e+308 to 5e-324
-    if (n === '-' || n === '+' || n === '-.' || n === '.') {
+    if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π' ) {
         return true;
     }
+    n = n.replace(/\$/g, '');
 
     function isExponent(ex) {
         // is integer 0 - 99 starting with +, -, or a number
@@ -234,6 +242,14 @@ function addRow(className, operatorValue, operandValue) {
 }
 
 function countSigFigs(num) {
+    // if this is an integer, make it max (8 for now)
+    if (/^-?[0-9]+$/.test(num)) {
+        return maxPrecision;
+    }
+
+    if (num === 'π') {
+        return maxPrecision;
+    }
     // I think this is wrong - trailing zeros should count after the decimal
     // remove exponents
     num = num.split('e')[0];
@@ -246,7 +262,7 @@ function countSigFigs(num) {
 }
 
 function toVulgar(num) {
-    var formattedNum = num.toPrecision(8).toString(10),
+    var formattedNum = num.toPrecision(maxPrecision).toString(10),
         aFormattedNum;
 
     function trimTrailZeros(n) {
@@ -273,9 +289,11 @@ function calculateRecent() {
         calcString = '',
         searchRow = activeRow - 1,
         spans,
-        sigFigsVal = document.getElementById('sigFigs').value,
+        //sigFigsVal = document.getElementById('sigFigs').value,
         sigFig = 0,
-        sigFigs = 0,
+        sigFigs = maxPrecision,
+        allInt = true,
+        hasMoney = false,
         result;
 
     function trimOperand(num) {
@@ -294,16 +312,23 @@ function calculateRecent() {
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
         spans = rows[searchRow].getElementsByTagName('span');
         sigFig = countSigFigs(spans[1].innerHTML);
-        if (sigFig > 6) {
-            sigFig = 6;
+        if (sigFig > maxPrecision) {
+            sigFig = maxPrecision;
         }
         if (sigFigs === 0 || sigFig < sigFigs) {
             sigFigs = sigFig;
         }
+        if (!/^-?[0-9]+$/.test(spans[1].innerHTML)) {
+            allInt = false;
+        }
         calcString = operatorSymbols[spans[0].innerHTML] + ' ' + trimOperand(spans[1].innerHTML) + ' ' + calcString;
         searchRow = searchRow - 1;
     }
+    calcString = calcString.replace(/π/g, 'Math.PI');
+    hasMoney = /\$/.test(calcString);
+    calcString = calcString.replace(/\$/g, '');
     console.log(calcString);
+
     try {
         result = eval(calcString);
     } catch (e) {
@@ -314,17 +339,24 @@ function calculateRecent() {
         return;
     }
 
+    /*
     if (sigFigsVal === '') {
         return toVulgar(result);
     }
 
     if (sigFigsVal === '$') {
         return result.toFixed(2);
-    }
+    }*/
 
     //if (sigFigsVal === '0') {
     //    sigFigsVal = sigFigs;
     //}
+    if (hasMoney) {
+        return '$' + result.toFixed(2);
+    }
+    if (allInt) {
+        return parseInt(result);
+    }
     return result.toPrecision(sigFigs);
 }
 
@@ -456,7 +488,8 @@ function keyEnter(e) {
 function clickEnter(e) {
     var el = getEventTarget(e),
         clickClass = el.className,
-        clickValue = el.innerHTML;
+        clickValue = el.innerHTML,
+        roll;
 
     if (el.tagName === 'BUTTON') {
         if (clickClass === 'operand') {
@@ -476,6 +509,11 @@ function clickEnter(e) {
         if (clickClass === 'exponent') {
             enterOperand('e');
         }
+        if (clickClass === 'mystery') {
+            roll = Math.ceil(Math.random() * 6).toString(10);
+            document.getElementById('rollDice').innerHTML = dice[roll - 1];
+            enterOperand(roll, true);
+        }
     } else {
         enterOperand(clickValue, true);
     }
@@ -490,14 +528,14 @@ function init() {
     /*addEvent(document.getElementById('clear'), 'click', function clear() {
         location.reload(true);
     });*/
-    addEvent(document.getElementById('sigFigs'), 'change', function changePrecision() {
-        document.cookie = 'precision=' + document.getElementById('sigFigs').value;
-    });
+    //addEvent(document.getElementById('sigFigs'), 'change', function changePrecision() {
+    //    document.cookie = 'precision=' + document.getElementById('sigFigs').value;
+    //});
 
     // initialize UI
     paper.appendChild(makeRow());
     cursorBlink(true);
-    document.getElementById('sigFigs').value = C$('precision');
+    //document.getElementById('sigFigs').value = C$('precision');
 }
 
 init();
