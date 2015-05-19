@@ -59,13 +59,6 @@ h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fi
 <h1>Sketchpad Calculator</h1>
 
 <div id="numberpad">
-    <!--<select id="sigFigs">
-        <option value="" selected="selected">Precision (8, remove trailing)
-        <option value="0">Scientific (Least significant figures)
-        <option value="$">Money (Round to the penny)
-    </select
-
-    >-->
     <button class="operand">$</button
     ><button class="mystery" id="rollDice">⚅</button
     ><button class="operand">π</button
@@ -242,15 +235,14 @@ function addRow(className, operatorValue, operandValue) {
 }
 
 function countSigFigs(num) {
-    // if this is an integer, make it max (8 for now)
+    // if this is an integer or pi, return maxPrecision
     if (/^-?[0-9]+$/.test(num)) {
         return maxPrecision;
     }
-
     if (num === 'π') {
         return maxPrecision;
     }
-    // I think this is wrong - trailing zeros should count after the decimal
+
     // remove exponents
     num = num.split('e')[0];
     // remove decimal and signs
@@ -289,7 +281,6 @@ function calculateRecent() {
         calcString = '',
         searchRow = activeRow - 1,
         spans,
-        //sigFigsVal = document.getElementById('sigFigs').value,
         sigFig = 0,
         sigFigs = maxPrecision,
         allInt = true,
@@ -339,18 +330,6 @@ function calculateRecent() {
         return;
     }
 
-    /*
-    if (sigFigsVal === '') {
-        return toVulgar(result);
-    }
-
-    if (sigFigsVal === '$') {
-        return result.toFixed(2);
-    }*/
-
-    //if (sigFigsVal === '0') {
-    //    sigFigsVal = sigFigs;
-    //}
     if (hasMoney) {
         return '$' + result.toFixed(2);
     }
@@ -525,17 +504,10 @@ function init() {
     addEvent(document.body, 'keypress', keyEnter);
     addEvent(paper, 'click', clickEnter);
     touchclick(document.getElementById('numberpad'), clickEnter);
-    /*addEvent(document.getElementById('clear'), 'click', function clear() {
-        location.reload(true);
-    });*/
-    //addEvent(document.getElementById('sigFigs'), 'change', function changePrecision() {
-    //    document.cookie = 'precision=' + document.getElementById('sigFigs').value;
-    //});
 
     // initialize UI
     paper.appendChild(makeRow());
     cursorBlink(true);
-    //document.getElementById('sigFigs').value = C$('precision');
 }
 
 init();
