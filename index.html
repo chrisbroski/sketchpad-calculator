@@ -183,7 +183,13 @@ function isPartialNumber(n) {
     if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π' ) {
         return true;
     }
-    n = n.replace(/\$/g, '');
+
+    if (/\$/.test(n)) {
+        if (n.match(/\$/g).length > 1) {
+            return false;
+        }
+        n = n.replace(/\$/g, '');
+    }
 
     function isExponent(ex) {
         // is integer 0 - 99 starting with +, -, or a number
