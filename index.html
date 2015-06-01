@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="calc.appcache">
+<html><!-- manifest="calc.appcache">-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -259,42 +259,80 @@ function countSigFigs(num) {
     return num.length;
 }
 
-function toVulgar(num) {
-    var formattedNum = num.toPrecision(maxPrecision).toString(10),
-        aFormattedNum;
+function calcFromArray(aCalc) {
+    var i, len, R, cType = '', total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision;
 
-    function trimTrailZeros(n) {
-        if (n.indexOf('.') === -1) {
-            return n;
-        }
-        n = n.replace(/0*$/g, '');
-        if (n.slice(-1) === '.') {
-            return n.slice(0, -1);
-        }
-        return n;
+    len = aCalc.length;
+    if (len === 1) {
+        return aCalc[0].operand;
     }
 
-    aFormattedNum = formattedNum.split('e');
-    if (aFormattedNum.length > 1) {
-        return trimTrailZeros(aFormattedNum[0]) + 'e' + aFormattedNum[1];
+    // Clean up and find rounding type
+    for (ii = 0; ii < len; ii = ii + 1) {
+        if (!/^-?[0-9]+$/.test(aCalc[ii].operand)) {
+            allInt = false;
+        }
+        if (/\$/.test(aCalc[ii].operand)) {
+            hasMoney = true;
+            aCalc[ii].operand = aCalc[ii].operand.replace(/\$/g, '');
+        }
+
+        sigFig = countSigFigs(aCalc[ii].operand);
+        if (sigFig > maxPrecision) {
+            sigFig = maxPrecision;
+        }
+        if (minSigFigs === 0 || sigFig < minSigFigs) {
+            minSigFigs = sigFig;
+        }
+
+        if (aCalc[ii].operand === 'π') {
+            aCalc[ii].operand = Math.PI;
+        }
     }
-    return trimTrailZeros(formattedNum);
+
+    total = aCalc[0].operand;
+    for (ii = 1; ii < len; ii = ii + 1) {
+        R = 0;
+        if (aCalc[ii].operator === '+') {
+            total = +total + +aCalc[ii].operand;
+        }
+        if (aCalc[ii].operator === '-') {
+            total = total - aCalc[ii].operand;
+        }
+        if (aCalc[ii].operator === '×') {
+            total = total * aCalc[ii].operand;
+        }
+        if (aCalc[ii].operator === '÷') {
+            if (allInt) {
+                if (ii === len - 1) {
+                    R = total % aCalc[ii].operand;
+                }
+                total = parseInt(total / aCalc[ii].operand);
+            } else {
+                total = total / aCalc[ii].operand;
+            }
+        }
+    }
+    if (R) {
+        return total + 'r' + R;
+    }
+    if (allInt) {
+        return parseInt(total);
+    }
+    if (hasMoney) {
+        return '$'+ total.toFixed(2);
+    }
+    
+    return total.toPrecision(minSigFigs);
 }
 
-function calculateRecent() {
-    // gonna eval it! NOOOOOOO! I'll fix this later...
-    var rows = paper.getElementsByTagName('div'),
-        calcString = '',
-        searchRow = activeRow - 1,
-        spans,
-        sigFig = 0,
-        sigFigs = maxPrecision,
-        allInt = true,
-        hasMoney = false,
-        result;
+function uiToArray() {
+    var rows, calcArray = [], searchRow = activeRow - 1, spans, result;
+    rows = paper.getElementsByTagName('div');
 
     function trimOperand(num) {
-        var aNum = num.split('e');
+        var aNum;
+        aNum = num.split('e');
         aNum[0] = aNum[0].replace(/^0*/g, '');
         
         if (aNum.length === 1) {
@@ -308,54 +346,30 @@ function calculateRecent() {
 
     while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
         spans = rows[searchRow].getElementsByTagName('span');
-        sigFig = countSigFigs(spans[1].innerHTML);
-        if (sigFig > maxPrecision) {
-            sigFig = maxPrecision;
-        }
-        if (sigFigs === 0 || sigFig < sigFigs) {
-            sigFigs = sigFig;
-        }
-        if (!/^-?[0-9]+$/.test(spans[1].innerHTML)) {
-            allInt = false;
-        }
-        calcString = operatorSymbols[spans[0].innerHTML] + ' ' + trimOperand(spans[1].innerHTML) + ' ' + calcString;
+        calcArray.unshift({"operator": spans[0].innerHTML, "operand": trimOperand(spans[1].innerHTML)});
         searchRow = searchRow - 1;
     }
-    calcString = calcString.replace(/π/g, 'Math.PI');
-    hasMoney = /\$/.test(calcString);
-    calcString = calcString.replace(/\$/g, '');
-    console.log(calcString);
 
-    try {
-        result = eval(calcString);
-    } catch (e) {
-        newCalculation();
-        addRow('new');
-        addRow();
-        throw e;
-        return;
-    }
-
-    if (hasMoney) {
-        return '$' + result.toFixed(2);
-    }
-    if (allInt) {
-        return parseInt(result);
-    }
-    return result.toPrecision(sigFigs);
+    return calcArray;
 }
 
 function enterOperand(digit, replace) {
-    var spans, newNumber;
+    var spans, currentNumber, newNumber;
     spans = getSpans();
+    currentNumber = spans[1].innerHTML;
 
     // Make sure its a legit number
     if (replace || justCalculated) {
         newNumber = digit;
     } else {
-        newNumber = spans[1].innerHTML + digit;
+        newNumber = currentNumber + digit;
     }
-
+    // Should be able to have $ at beginning or end, but not middle
+    if (currentNumber.length > 1) {
+        if (currentNumber.slice(0, 1) !== '$' && /\$/.test(currentNumber)) {
+            return;
+        }
+    }
     if (!isPartialNumber(newNumber)) {
         return;
     }
@@ -395,7 +409,7 @@ function hitEquals() {
         val = getSpans()[1].innerHTML;
         if (val !== '-' && isPartialNumber(val)) {
             addRow('equals');
-            addRow('', '', calculateRecent());
+            addRow('', '', calcFromArray(uiToArray()));
             justCalculated = true;
         }
     }
@@ -500,6 +514,10 @@ function clickEnter(e) {
             enterOperand(roll, true);
         }
     } else {
+        // Trim remainder, if any
+        if (/r/.test(clickValue)) {
+            clickValue = clickValue.slice(0, clickValue.indexOf('r'));
+        }
         enterOperand(clickValue, true);
     }
 }
