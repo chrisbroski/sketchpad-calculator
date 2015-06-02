@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><!-- manifest="calc.appcache">-->
+<html manifest="calc.appcache">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="IE=Edge">
@@ -92,7 +92,7 @@ h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fi
 </div>
 
 <script>
-/*jslint browser: true, devel: true, evil: true, sloppy: true */
+/*jslint browser: true, devel: true, sloppy: true */
 
 var activeRow = 0,
     paper = document.getElementById('paper'),
@@ -167,45 +167,6 @@ function cursorBlink(resetBlink) {
     blinkId = window.setTimeout(cursorBlink, 600);
 }
 
-function newCalculation() {
-    if (justCalculated) {
-        justCalculated = false;
-        addRow('new');
-        addRow();
-        return true;
-    }
-    return false;
-}
-
-function isPartialNumber(n) {
-    var aNumPieces;
-    // 1.7976931348623157e+308 to 5e-324
-    if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π' ) {
-        return true;
-    }
-
-    if (/\$/.test(n)) {
-        if (n.match(/\$/g).length > 1) {
-            return false;
-        }
-        n = n.replace(/\$/g, '');
-    }
-
-    function isExponent(ex) {
-        // is integer 0 - 99 starting with +, -, or a number
-        var reExponent = /^[+-]{0,1}\d{0,2}$/;
-        return reExponent.test(ex);
-    }
-
-    // partial exponent: (legit full number) + e (+/-) (0 - 99)
-    aNumPieces = n.split('e');
-    if (aNumPieces.length === 2) {
-        return (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1]));
-    } else {
-        return isNumber(n);
-    }
-}
-
 function makeRow() {
     var row = document.createElement('div');
     row.innerHTML = '<span class="operator"></span><span class="operand"></span><span></span>';
@@ -226,7 +187,7 @@ function addRow(className, operatorValue, operandValue) {
     if (operandValue) {
         newRow.getElementsByTagName('span')[1].innerHTML = operandValue;
     }
-    
+
     // if there are more the maxLines divs, remove the top one
     lines = paper.getElementsByTagName('div');
     if (lines.length > maxLines) {
@@ -234,10 +195,48 @@ function addRow(className, operatorValue, operandValue) {
     } else {
         activeRow = activeRow + 1;
     }
-    
+
     paper.appendChild(newRow);
     cursorBlink(true);
     window.scrollTo(0, document.body.scrollHeight);
+}
+
+function newCalculation() {
+    if (justCalculated) {
+        justCalculated = false;
+        addRow('new');
+        addRow();
+        return true;
+    }
+    return false;
+}
+
+function isPartialNumber(n) {
+    var aNumPieces;
+    // 1.7976931348623157e+308 to 5e-324
+    if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π') {
+        return true;
+    }
+
+    if (/\$/.test(n)) {
+        if (n.match(/\$/g).length > 1) {
+            return false;
+        }
+        n = n.replace(/\$/g, '');
+    }
+
+    function isExponent(ex) {
+        // is integer 0 - 99 starting with +, -, or a number
+        var reExponent = /^[\+\-]{0,1}\d{0,2}$/;
+        return reExponent.test(ex);
+    }
+
+    // partial exponent: (legit full number) + e (+/-) (0 - 99)
+    aNumPieces = n.split('e');
+    if (aNumPieces.length === 2) {
+        return (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1]));
+    }
+    return isNumber(n);
 }
 
 function countSigFigs(num) {
@@ -260,7 +259,7 @@ function countSigFigs(num) {
 }
 
 function calcFromArray(aCalc) {
-    var i, len, R, cType = '', total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision;
+    var ii, len, R, total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision;
 
     len = aCalc.length;
     if (len === 1) {
@@ -307,7 +306,7 @@ function calcFromArray(aCalc) {
                 if (ii === len - 1) {
                     R = total % aCalc[ii].operand;
                 }
-                total = parseInt(total / aCalc[ii].operand);
+                total = parseInt(total / aCalc[ii].operand, 10);
             } else {
                 total = total / aCalc[ii].operand;
             }
@@ -317,24 +316,24 @@ function calcFromArray(aCalc) {
         return total + 'r' + R;
     }
     if (allInt) {
-        return parseInt(total);
+        return parseInt(total, 10);
     }
     if (hasMoney) {
-        return '$'+ total.toFixed(2);
+        return '$' + total.toFixed(2);
     }
-    
+
     return total.toPrecision(minSigFigs);
 }
 
 function uiToArray() {
-    var rows, calcArray = [], searchRow = activeRow - 1, spans, result;
+    var rows, calcArray = [], searchRow = activeRow - 1, spans;
     rows = paper.getElementsByTagName('div');
 
     function trimOperand(num) {
         var aNum;
         aNum = num.split('e');
         aNum[0] = aNum[0].replace(/^0*/g, '');
-        
+
         if (aNum.length === 1) {
             return aNum[0];
         }
@@ -474,7 +473,7 @@ function keyEnter(e) {
     }
 
     // Number
-    if (key.match(/^[0-9\.e]$/)) {
+    if (key.match(/^[0-9\.e\$]$/)) {
         enterOperand(key);
     }
 
