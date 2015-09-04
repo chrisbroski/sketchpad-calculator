@@ -44,14 +44,6 @@ h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fi
 #numberpad button:focus {outline: 0 none; }
 #numberpad button.exponent {font-size: 14px; line-height: 17px; }
 #numberpad button.exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
-#numberpad #sigFigs {
-    margin: 0;
-    -webkit-appearance: none; -webkit-border-radius: 0;
-    border: 1px solid #aaa;
-    background: #eee;
-    width: 120px; height: 50px;
-    float: left;
-}
 </style>
 
 <body>
@@ -302,27 +294,32 @@ function calcFromArray(aCalc) {
             total = total * aCalc[ii].operand;
         }
         if (aCalc[ii].operator === '÷') {
-            if (allInt) {
+            /*if (allInt) {
                 if (ii === len - 1) {
                     R = total % aCalc[ii].operand;
                 }
                 total = parseInt(total / aCalc[ii].operand, 10);
-            } else {
+            } else {*/
                 total = total / aCalc[ii].operand;
-            }
+            //}
         }
     }
-    if (R) {
+    /*if (R) {
         return total + 'r' + R;
     }
     if (allInt) {
         return parseInt(total, 10);
-    }
+    }*/
     if (hasMoney) {
         return '$' + total.toFixed(2);
     }
 
-    return total.toPrecision(minSigFigs);
+    //return total.toPrecision(minSigFigs);
+    if (allInt) {
+        return total.toPrecision(maxPrecision);
+    } else {
+        return total.toPrecision(minSigFigs);
+    }
 }
 
 function uiToArray() {
@@ -513,10 +510,11 @@ function clickEnter(e) {
             enterOperand(roll, true);
         }
     } else {
+        /* // getting rid of remainders
         // Trim remainder, if any
         if (/r/.test(clickValue)) {
             clickValue = clickValue.slice(0, clickValue.indexOf('r'));
-        }
+        }*/
         enterOperand(clickValue, true);
     }
 }
