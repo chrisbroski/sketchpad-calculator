@@ -316,7 +316,7 @@ function calcFromArray(aCalc) {
 
     //return total.toPrecision(minSigFigs);
     if (allInt) {
-        return total.toPrecision(maxPrecision);
+        return total.toPrecision(maxPrecision).replace(/0*$/g, '');
     } else {
         return total.toPrecision(minSigFigs);
     }
