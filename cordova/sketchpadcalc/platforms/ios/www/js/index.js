@@ -1,89 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta http-equiv="x-ua-compatible" content="IE=Edge">
-<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-<link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+*/
+var app = {
+    // Application Constructor
+    initialize: function() {
+        this.bindEvents();
+    },
+    // Bind Event Listeners
+    //
+    // Bind any events that are required on startup. Common events are:
+    // 'load', 'deviceready', 'offline', and 'online'.
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+        // attach events
+        //addEvent(document.body, 'keydown', supressBrowserHotKeys);
+        //addEvent(document.body, 'keypress', keyEnter);
+        //addEvent(paper, 'click', clickEnter);
+        document.addEventListener('touchstart', clickEnter, false);
+        //touchclick(document.getElementById('numberpad'), clickEnter);
 
-<title>Sketchpad Calculator</title>
-<style>
-html {padding: 5px; font-family: droid sans, sans-serif; }
-h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fixed; top: 0; }
+        // initialize UI
+        paper.appendChild(makeRow());
+        cursorBlink(true);
+    },
+    // deviceready Event Handler
+    //
+    // The scope of 'this' is the event. In order to call the 'receivedEvent'
+    // function, we must explicitly call 'app.receivedEvent(...);'
+    onDeviceReady: function() {
+        app.receivedEvent('deviceready');
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        var parentElement = document.getElementById(id);
+        var listeningElement = parentElement.querySelector('.listening');
+        var receivedElement = parentElement.querySelector('.received');
 
-#calculator {max-width: 500px; margin: 0 auto; }
+        listeningElement.setAttribute('style', 'display:none;');
+        receivedElement.setAttribute('style', 'display:block;');
 
-#paper {padding: 2.0em 0 0 0; font: 18px monospace; width: 153px; }
-#paper > div {text-align: right; }
-#paper > div span.operator {padding-right: 0.5em; }
-#paper > div span.operand {cursor: pointer; }
-#paper > div span.operand:hover {color: blue; }
-#paper > div span:last-child {border-right: 1px solid #fff; }
-#paper > div span.cursorOn {border-right: 1px solid #000; }
-#paper > div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
-#paper > div.new {height: 1em; }
+        console.log('Received Event: ' + id);
+    }
+};
 
-#numberpad {
-    margin: 0; padding: 2px;
-    background: #000;
-    width: 120px;
-    position: fixed; bottom: 10px; left: 57%;
-}
-#numberpad button {
-    margin: 0; padding: 0;
-    -webkit-appearance: none; -webkit-border-radius: 0;
-    background-color: #eee;
-    border: 1px solid #aaa;
-    font: 16px/15px serif;
-    width: 40px; height: 50px;
-    text-align: center;
-}
-#numberpad button:active {background: #ddd; }
-#numberpad button:focus {outline: 0 none; }
-#numberpad button.exponent {font-size: 14px; line-height: 17px; }
-#numberpad button.exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
-</style>
-
-<body>
-<div id="calculator">
-<h1>Sketchpad Calculator</h1>
-
-<div id="numberpad">
-    <button class="operand">$</button
-    ><button class="mystery" id="rollDice">⚅</button
-    ><button class="operand">π</button
-    
-    ><button class="operator">+</button
-    ><button class="minus">-</button
-    ><button class="backspace">←</button
-    
-    ><button class="operator">×</button
-    ><button class="operator">÷</button
-    ><button class="exponent">×10<sup>x</sup></button
-    
-    ><button class="operand">7</button
-    ><button class="operand">8</button
-    ><button class="operand">9</button
-    
-    ><button class="operand">4</button
-    ><button class="operand">5</button
-    ><button class="operand">6</button
-    
-    ><button class="operand">1</button
-    ><button class="operand">2</button
-    ><button class="operand">3</button
-    
-    ><button class="operand" id="zero">0</button
-    ><button class="operand">.</button
-    ><button class="equals">=</button>
-</div>
-
-<div id="paper"></div>
-</div>
-
-<script>
 /*jslint browser: true, devel: true, sloppy: true */
 
 var activeRow = 0,
@@ -130,15 +104,6 @@ function getEventTarget(e) {
         targ = targ.parentNode;
     }
     return targ;
-}
-
-function touchclick(el, func, bubble) {
-    bubble = !!bubble;
-    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
-        el.addEventListener('touchstart', func, bubble);
-    } else {
-        addEvent(el, 'click', func, bubble);
-    }
 }
 
 function getSpans(rowIndex) {
@@ -294,32 +259,27 @@ function calcFromArray(aCalc) {
             total = total * aCalc[ii].operand;
         }
         if (aCalc[ii].operator === '÷') {
-            /*if (allInt) {
+            if (allInt) {
                 if (ii === len - 1) {
                     R = total % aCalc[ii].operand;
                 }
                 total = parseInt(total / aCalc[ii].operand, 10);
-            } else {*/
+            } else {
                 total = total / aCalc[ii].operand;
-            //}
+            }
         }
     }
-    /*if (R) {
+    if (R) {
         return total + 'r' + R;
     }
     if (allInt) {
         return parseInt(total, 10);
-    }*/
+    }
     if (hasMoney) {
         return '$' + total.toFixed(2);
     }
 
-    //return total.toPrecision(minSigFigs);
-    if (allInt) {
-        return total.toPrecision(maxPrecision);
-    } else {
-        return total.toPrecision(minSigFigs);
-    }
+    return total.toPrecision(minSigFigs);
 }
 
 function uiToArray() {
@@ -510,27 +470,12 @@ function clickEnter(e) {
             enterOperand(roll, true);
         }
     } else {
-        /* // getting rid of remainders
         // Trim remainder, if any
         if (/r/.test(clickValue)) {
             clickValue = clickValue.slice(0, clickValue.indexOf('r'));
-        }*/
+        }
         enterOperand(clickValue, true);
     }
 }
 
-function init() {
-    // attach events
-    addEvent(document.body, 'keydown', supressBrowserHotKeys);
-    addEvent(document.body, 'keypress', keyEnter);
-    addEvent(paper, 'click', clickEnter);
-    touchclick(document.getElementById('numberpad'), clickEnter);
-
-    // initialize UI
-    paper.appendChild(makeRow());
-    cursorBlink(true);
-}
-
-init();
-
-</script>
+app.initialize();
