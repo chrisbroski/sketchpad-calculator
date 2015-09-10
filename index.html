@@ -97,10 +97,6 @@ var activeRow = 0,
     maxPrecision = 8,
     dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
-if (typeof console === "undefined" || typeof console.log === "undefined") {
-    window.console = {log: function () {}};
-}
-
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
