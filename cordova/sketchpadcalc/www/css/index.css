@@ -29,7 +29,7 @@ body {
 }
 @font-face {
     font-family: "sketch";
-    src: url("PermanentMarker.ttf") format("opentype");   
+    src: url("AmaticSC-Regular.ttf") format("opentype");   
 }
 html {padding: 2%; font-family: droid sans, sans-serif; }
 h1 {
