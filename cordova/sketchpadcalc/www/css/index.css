@@ -40,6 +40,7 @@ h1 {
     white-space: nowrap;
     text-align: center;
     width: 96%;
+    color: #333;
 }
 
 #calculator {max-width: 500px; margin: 0 auto; }

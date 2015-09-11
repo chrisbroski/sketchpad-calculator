@@ -40,6 +40,7 @@ h1 {
     white-space: nowrap;
     text-align: center;
     width: 96%;
+    color: #333;
 }
 
 #calculator {max-width: 500px; margin: 0 auto; }
@@ -70,7 +71,7 @@ h1 {
     color: #fff;
 }
 #numberpad button.operand {background: #777; }
-#numberpad button#money, #numberpad button#pi {background: #444; }
+#numberpad button#money, #numberpad button#pi {background: #555; }
 #numberpad button:active {background: #888; }
 #numberpad button:focus {outline: 0 none; }
 #numberpad button.exponent {font-size: 14px; line-height: 17px; }
