@@ -27,16 +27,7 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        // attach events
-        //addEvent(document.body, 'keydown', supressBrowserHotKeys);
-        //addEvent(document.body, 'keypress', keyEnter);
-        //addEvent(paper, 'click', clickEnter);
         document.addEventListener('touchstart', clickEnter, false);
-        //touchclick(document.getElementById('numberpad'), clickEnter);
-
-        // initialize UI
-        paper.appendChild(makeRow());
-        cursorBlink(true);
     },
     // deviceready Event Handler
     //
@@ -44,6 +35,10 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+        
+        // initialize UI
+        paper.appendChild(makeRow());
+        cursorBlink(true);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
@@ -70,10 +65,6 @@ var activeRow = 0,
     maxLines = 2000,
     maxPrecision = 8,
     dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-
-if (typeof console === "undefined" || typeof console.log === "undefined") {
-    window.console = {log: function () {}};
-}
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -104,6 +95,15 @@ function getEventTarget(e) {
         targ = targ.parentNode;
     }
     return targ;
+}
+
+function touchclick(el, func, bubble) {
+    bubble = !!bubble;
+    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
+        el.addEventListener('touchstart', func, bubble);
+    } else {
+        addEvent(el, 'click', func, bubble);
+    }
 }
 
 function getSpans(rowIndex) {
@@ -216,7 +216,7 @@ function countSigFigs(num) {
 }
 
 function calcFromArray(aCalc) {
-    var ii, len, R, total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision;
+    var ii, len, total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision, out;
 
     len = aCalc.length;
     if (len === 1) {
@@ -248,7 +248,6 @@ function calcFromArray(aCalc) {
 
     total = aCalc[0].operand;
     for (ii = 1; ii < len; ii = ii + 1) {
-        R = 0;
         if (aCalc[ii].operator === '+') {
             total = +total + +aCalc[ii].operand;
         }
@@ -259,26 +258,21 @@ function calcFromArray(aCalc) {
             total = total * aCalc[ii].operand;
         }
         if (aCalc[ii].operator === '÷') {
-            if (allInt) {
-                if (ii === len - 1) {
-                    R = total % aCalc[ii].operand;
-                }
-                total = parseInt(total / aCalc[ii].operand, 10);
-            } else {
-                total = total / aCalc[ii].operand;
-            }
+            total = total / aCalc[ii].operand;
         }
     }
-    if (R) {
-        return total + 'r' + R;
-    }
-    if (allInt) {
-        return parseInt(total, 10);
-    }
+
     if (hasMoney) {
         return '$' + total.toFixed(2);
     }
 
+    if (allInt) {
+        out = total.toPrecision(maxPrecision).replace(/0*$/g, '');
+        if (out.slice(-1) === '.') {
+            out = out.slice(0, -1);
+        }
+        return out;
+    }
     return total.toPrecision(minSigFigs);
 }
 
@@ -405,19 +399,6 @@ function handleMinus(command) {
     }
 }
 
-function supressBrowserHotKeys(e) {
-    // Stop quick search in Firefox
-    if (e.key === '/') {
-        enterOperator('/');
-        e.preventDefault();
-    }
-    // Prevent backspace from acting like the back button
-    if (e.keyCode === 8) {
-        removeOperand();
-        e.preventDefault();
-    }
-}
-
 function keyEnter(e) {
     var key = e.key || String.fromCharCode(e.keyCode);
 
@@ -470,12 +451,10 @@ function clickEnter(e) {
             enterOperand(roll, true);
         }
     } else {
-        // Trim remainder, if any
-        if (/r/.test(clickValue)) {
-            clickValue = clickValue.slice(0, clickValue.indexOf('r'));
-        }
         enterOperand(clickValue, true);
     }
 }
+
+init();
 
 app.initialize();

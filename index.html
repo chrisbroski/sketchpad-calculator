@@ -10,8 +10,12 @@
 
 <title>Sketchpad Calculator</title>
 <style>
+@font-face {
+    font-family: "sketch";
+    src: url("cordova/sketchpadcalc/www/css/PermanentMarker.ttf") format("opentype");   
+}
 html {padding: 5px; font-family: droid sans, sans-serif; }
-h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fixed; top: 0; }
+h1 {margin: 0; padding: 0.4em 0; font: 28px/0.8em sketch; background: #fff; position: fixed; top: 0; white-space: nowrap; }
 
 #calculator {max-width: 500px; margin: 0 auto; }
 
@@ -96,10 +100,6 @@ var activeRow = 0,
     maxLines = 2000,
     maxPrecision = 8,
     dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-
-if (typeof console === "undefined" || typeof console.log === "undefined") {
-    window.console = {log: function () {}};
-}
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -251,7 +251,7 @@ function countSigFigs(num) {
 }
 
 function calcFromArray(aCalc) {
-    var ii, len, R, total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision;
+    var ii, len, total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision, out;
 
     len = aCalc.length;
     if (len === 1) {
@@ -283,7 +283,6 @@ function calcFromArray(aCalc) {
 
     total = aCalc[0].operand;
     for (ii = 1; ii < len; ii = ii + 1) {
-        R = 0;
         if (aCalc[ii].operator === '+') {
             total = +total + +aCalc[ii].operand;
         }
@@ -294,32 +293,22 @@ function calcFromArray(aCalc) {
             total = total * aCalc[ii].operand;
         }
         if (aCalc[ii].operator === '÷') {
-            /*if (allInt) {
-                if (ii === len - 1) {
-                    R = total % aCalc[ii].operand;
-                }
-                total = parseInt(total / aCalc[ii].operand, 10);
-            } else {*/
-                total = total / aCalc[ii].operand;
-            //}
+            total = total / aCalc[ii].operand;
         }
     }
-    /*if (R) {
-        return total + 'r' + R;
-    }
-    if (allInt) {
-        return parseInt(total, 10);
-    }*/
+
     if (hasMoney) {
         return '$' + total.toFixed(2);
     }
 
-    //return total.toPrecision(minSigFigs);
     if (allInt) {
-        return total.toPrecision(maxPrecision).replace(/0*$/g, '');
-    } else {
-        return total.toPrecision(minSigFigs);
+        out = total.toPrecision(maxPrecision).replace(/0*$/g, '');
+        if (out.slice(-1) === '.') {
+            out = out.slice(0, -1);
+        }
+        return out;
     }
+    return total.toPrecision(minSigFigs);
 }
 
 function uiToArray() {
@@ -510,11 +499,6 @@ function clickEnter(e) {
             enterOperand(roll, true);
         }
     } else {
-        /* // getting rid of remainders
-        // Trim remainder, if any
-        if (/r/.test(clickValue)) {
-            clickValue = clickValue.slice(0, clickValue.indexOf('r'));
-        }*/
         enterOperand(clickValue, true);
     }
 }
