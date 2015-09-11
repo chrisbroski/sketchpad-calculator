@@ -70,7 +70,7 @@ h1 {
     color: #fff;
 }
 #numberpad button.operand {background: #777; }
-#numberpad button#money, #numberpad button#pi {background: #444; }
+#numberpad button#money, #numberpad button#pi {background: #555; }
 #numberpad button:active {background: #888; }
 #numberpad button:focus {outline: 0 none; }
 #numberpad button.exponent {font-size: 14px; line-height: 17px; }

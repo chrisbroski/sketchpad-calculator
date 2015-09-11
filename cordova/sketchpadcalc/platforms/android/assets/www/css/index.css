@@ -62,7 +62,7 @@ h1 {
 #numberpad button {
     margin: 0; padding: 0;
     -webkit-appearance: none; -webkit-border-radius: 0;
-    background-color: #444;
+    background-color: #555;
     border: 1px solid #fff;
     font: 16px/15px serif;
     width: 40px; height: 50px;
