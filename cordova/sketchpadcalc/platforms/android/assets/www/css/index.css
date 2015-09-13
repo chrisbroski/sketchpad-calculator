@@ -34,9 +34,9 @@ body {
 html {padding: 2%; font-family: droid sans, sans-serif; }
 h1 {
     margin: 0; padding: 0.4em 0;
-    font: 24px/0.8em sketch;
+    font: 36px/0.6em sketch;
     background: #fff;
-    position: fixed; top: 0;
+    position: fixed; top: 0; left: 0;
     white-space: nowrap;
     text-align: center;
     width: 96%;
@@ -45,7 +45,7 @@ h1 {
 
 #calculator {max-width: 500px; margin: 0 auto; }
 
-#paper {padding: 2.0em 0 0 0; font: 18px monospace; width: 153px; }
+#paper {padding: 40px 0 0 0; font: 18px monospace; width: 153px; }
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 0.5em; }
 #paper > div span.operand {cursor: pointer; }
@@ -63,7 +63,7 @@ h1 {
 #numberpad button {
     margin: 0; padding: 0;
     -webkit-appearance: none; -webkit-border-radius: 0;
-    background-color: #555;
+    background-color: #444;
     border: 1px solid #fff;
     font: 16px/15px serif;
     width: 40px; height: 50px;
@@ -71,7 +71,7 @@ h1 {
     color: #fff;
 }
 #numberpad button.operand {background: #777; }
-#numberpad button#money, #numberpad button#pi {background: #555; }
+#numberpad button#rollDice {background: #777; }
 #numberpad button:active {background: #888; }
 #numberpad button:focus {outline: 0 none; }
 #numberpad button.exponent {font-size: 14px; line-height: 17px; }
