@@ -58,7 +58,7 @@ h1 {
 #numberpad {
     margin: 0; padding: 2px;
     width: 120px;
-    position: fixed; bottom: 10px; left: 57%;
+    position: fixed; bottom: 10px; right: 10px;
 }
 #numberpad button {
     margin: 0; padding: 0;

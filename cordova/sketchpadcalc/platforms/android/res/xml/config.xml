@@ -5,11 +5,10 @@
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <allow-intent href="market:*" />
     <preference name="orientation" value="portrait" />
     <name>Sketchpad Calculator</name>
     <description>
-        Play with numbers on your phone more like you do with pencil and paper.
+        Work with numbers on your phone like you do with pencil and paper.
     </description>
     <author email="chrisbroski@gmail.com" href="http://www.chaosscape.com">
         Chris Broski
@@ -19,10 +18,4 @@
     <icon density="xhdpi" src="www/img/icon-xhdpi.png" />
     <content src="index.html" />
     <access origin="*" />
-    <allow-intent href="http://*/*" />
-    <allow-intent href="https://*/*" />
-    <allow-intent href="tel:*" />
-    <allow-intent href="sms:*" />
-    <allow-intent href="mailto:*" />
-    <allow-intent href="geo:*" />
 </widget>
