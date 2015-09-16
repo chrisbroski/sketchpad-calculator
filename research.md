@@ -15,7 +15,7 @@ Writers scribble a first draft; painters begin with a rough sketch. I have found
 
 Making a proof-of-concept UI can require a lot of self-discipline because it is going to look and work horribly. It will be a buggy, clunky, feature-poor hack that is nowhere near a viable product. That's OK. Get yourself psyched up for the inevitable suck. This is a research exercise, and the goal is to learn more about the target problem. Don't show this to anyone. They wouldn't understand.
 
-Another struggle when creating a fast first prototype is leaving out all features that are not critical. The hard ones for me to leave out were:
+Another struggle when creating a fast first prototype is cutting noncritical features. The hard ones for me to leave out were:
 
 ###Mobile Version
 
@@ -45,9 +45,7 @@ This is definitely a fancy feature, and I had promised myself to keep it simple,
 
 ####Custom Precision Rounding
 
-This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from chemists it seems) understands how to use significant figures to determine the proper precision of a final result.
-
-I'd like to say I solved this, but I can't say that, because I didn't. So instead, in the spirit of experimentation, I implemented a bunch of solutions. My favorite one (labelled "proper") keeps track of the number with the least amount of significant figures in the active calculation and then rounds to that precision. As much as it is "proper", it is awkward to work with. All results are forced to exponential notation and god forbid if you include a single-digit operand that dumps the precision down to 1. I included some fixed amounts of precision (2 through 14) that seems to work OK. Calculators have their own weird formatting rules that round indiscriminate of significant figures. I threw together something that works like that and labelled it "vulgar." I reluctantly admit that it gives the most intuitive results. At least I got to name it something derogatory, so that makes me feel a little better.
+I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from chemists it seems) understands how to use significant figures to determine the proper precision of a final result. I'd like to say I solved this, but I can't say that, because I didn't. I did explore it with a drop-down that rounds in differen ways.
 
 ###My Completed Wireframe
 
