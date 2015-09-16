@@ -1,21 +1,21 @@
 Sketchpad Calculator
 ====================
 
-The other day I needed to do some simple calculations. I can't remember if it was to find the amount of material needed for a home improvement, to calculate the best value for a purchase, or just helping my daughter with her math homework. I found a pen and paper to set up the problem, then used the default calculator on my Android phone to perform the calculation...
+The other day I needed to do some simple math. I can't remember if it was to find the amount of material needed for a home improvement, to calculate the best value for a purchase, or just helping my daughter with her homework. I found a pen and paper to set up the problem, then used the default calculator on my Android phone to perform the calculation…
 
-It struck me - what the heck is happening? If the calculator was so great, why am I still using pen and paper? I examined my actions and saw that how I wanted to do calculations were incompatible with the calculator UI, but not inherently. Now I had a challenge: could I create a calculator UI to enable the natural way people perform math tasks and eliminate my need for pad and paper?
+It struck me—what the heck is happening? If the calculator was so great, why am I still using pen and paper? I examined my actions and observed that how I wanted to do these calculations was incompatible with the calculator UI, but not inherently. Now I had a challenge: could I create a calculator UI to enable the natural way people perform math tasks and eliminate my need for pad and paper?
 
 ###Why Current Calculator Apps Suck
 
-When calculators were first developed, they were miracles of engineering, but the immaturity of the technology had limited options for the user interface. We had to be taught how to use a calculator. We changed our behavior to match the interface of the first calculators, and it was well worth the effort. But this was decades ago, and the calculator interface has stayed the same. Skimming through calculator apps in the Google store, the overwhelmingly most common UI design is a photo realistic picture of a calculator. This is not what innovation looks like. We now have the technology to make a mathematical interface intuitive and effortless, and that is exactly what I want to attempt.
+When calculators were first developed, they were miracles of engineering, but the immaturity of the technology had limited options for the user interface. We had to learn how to use a calculator. We changed our behavior to match the interface of the first calculators, and it was well worth the effort. But this was decades ago, and the calculator interface has stayed relatively the same. Skimming through calculator apps in the Google store, the overwhelmingly most common UI design is a realistic photo of a hand-held calculator. This is not what innovation looks like. We have the technology today to make a mathematical interface intuitive and effortless, and that is exactly what I want to attempt.
 
-###Prototype UI
+###First Wireframe UI
 
-Writers scribble a first draft; painters begin with a rough sketch. I have found that a powerful start to a new design is to build the first solution that comes to mind as quickly as possible, then listen to what that teaches you. I based my first design on how math is done on a pad of paper. My goal was to create a digital UI that reproduces that exact same process step-by-step.
+Writers scribble a first draft; painters begin with a rough sketch. I have found that a powerful start to a new design is to build the first solution that comes to mind as quickly as possible, without concern for visual beauty, then listen to what that teaches you. I based my first design on how math is done on a pad of paper. My goal was to create a digital UI that reproduces that exact same process, step-by-step.
 
-Making a proof-of-concept UI can require a lot of self-discipline because it is going to look and work terribly. It will be a buggy, clunky, feature-poor hack that is nowhere near a viable product. That's OK. Get yourself psyched up for the inevitable suck. This is a research exercise, and the goal is to delve into the target problem as a first small step toward a solution. Don't show this to anyone. They wouldn't understand.
+Making a proof-of-concept UI can require a lot of self-discipline because it is going to look and work horribly. It will be a buggy, clunky, feature-poor hack that is nowhere near a viable product. That's OK. Get yourself psyched up for the inevitable suck. This is a research exercise, and the goal is to learn more about the target problem. Don't show this to anyone. They wouldn't understand.
 
-Another struggle when creating a fast first prototype is leaving out all features that are not the core, critical ones that you wish to test. The hard ones for me to leave out were:
+Another struggle when creating a fast first prototype is cutting noncritical features. The hard ones for me to leave out were:
 
 ###Mobile Version
 
@@ -23,7 +23,7 @@ Even though the entire point of the project is to make a better calculator for m
 
 ###Backspace/Delete
 
-Being able to fix minor errors will be a great feature in the final version, but for testing? No so much. I am going to use random numbers to test, so I don't even care if the results are calculated correctly.
+Being able to fix minor errors will be a great feature in the final version, but for testing? No so much. I am going to use random numbers to test, so it isn't even important if the results are calculated correctly.
 
 ###Features
 
@@ -45,11 +45,9 @@ This is definitely a fancy feature, and I had promised myself to keep it simple,
 
 ####Custom Precision Rounding
 
-This is another thing that is significantly different than most other calculation software. I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from chemists it seems) understands how to use significant figures to determine the proper precision of a final result.
+I was hoping to avoid having to deal with it but it became necessary very quickly. Division can easily produce a large amount of digits after the decimal that are nonsensical and hurt readability. Also, with JavaScript converting numbers to floating-point you can get some unexpected results. (Try adding 0.1 and 0.2 in your Chrome console.) It is also a pet peeve of mine that nobody (apart from chemists it seems) understands how to use significant figures to determine the proper precision of a final result. I'd like to say I solved this, but I can't say that, because I didn't. I did explore it with a drop-down that rounds in differen ways.
 
-I'd like to say I solved this, but I can't say that, because I didn't. So instead, in the spirit of experimentation, I implemented a bunch of solutions. My favorite one (labelled "proper") keeps track of the number with the least amount of significant figures in the active calculation and then rounds to that precision. As much as it is "proper", it is awkward to work with. All results are forced to exponential notation and god forbid if you include a single-digit operand that dumps the precision down to 1. I included some fixed amounts of precision (2 through 14) that seems to work OK. Calculators have their own weird formatting rules that round indiscriminate of significant figures. I threw together something that works like that and labelled it "vulgar." I reluctantly admit that it gives the most intuitive results. At least I got to name it something derogatory, so that makes me feel a little better.
-
-###My Prototype
+###My Completed Wireframe
 
 I said that you should never show this to anyone because they will judge it against finished product and they'll think you are a terrible developer and give you no constructive feedback. I am going to break that rule and show it to you because we are savvy UI designers that get it:
 
