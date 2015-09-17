@@ -172,7 +172,7 @@ function newCalculation() {
 function isPartialNumber(n) {
     var aNumPieces;
     // 1.7976931348623157e+308 to 5e-324
-    if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π') {
+    if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π' || n === '%') {
         return true;
     }
 
@@ -181,6 +181,13 @@ function isPartialNumber(n) {
             return false;
         }
         n = n.replace(/\$/g, '');
+    }
+
+    if (/\%/.test(n)) {
+        if (n.match(/\%/g).length > 1) {
+            return false;
+        }
+        n = n.replace(/\%/g, '');
     }
 
     function isExponent(ex) {
@@ -209,7 +216,7 @@ function countSigFigs(num) {
     // remove exponents
     num = num.split('e')[0];
     // remove decimal and signs
-    num = num.replace(/[\-\.\+]/g, '');
+    num = num.replace(/[\-\.\+\%]/g, '');
     // trim leading zeros
     num = num.replace(/^0*/g, '');
 
@@ -233,6 +240,10 @@ function calcFromArray(aCalc) {
         if (/\$/.test(aCalc[ii].operand)) {
             hasMoney = true;
             aCalc[ii].operand = aCalc[ii].operand.replace(/\$/g, '');
+        }
+        if (/\%/.test(aCalc[ii].operand)) {
+            aCalc[ii].operand = aCalc[ii].operand.replace(/\%/g, '');
+            aCalc[ii].operand = (aCalc[ii].operand / 100).toString();
         }
 
         sigFig = countSigFigs(aCalc[ii].operand);
@@ -319,6 +330,14 @@ function enterOperand(digit, replace) {
     // Should be able to have $ at beginning or end, but not middle
     if (currentNumber.length > 1) {
         if (currentNumber.slice(0, 1) !== '$' && /\$/.test(currentNumber)) {
+            return;
+        }
+        // Should be able to have % at beginning or end, but not middle
+        if (currentNumber.slice(0, 1) !== '%' && /\%/.test(currentNumber)) {
+            return;
+        }
+        // Both $ and % are not allowed
+        if (/\$/.test(newNumber) && /\%/.test(newNumber)) {
             return;
         }
     }
@@ -413,7 +432,7 @@ function keyEnter(e) {
     }
 
     // Number
-    if (key.match(/^[0-9\.e\$]$/)) {
+    if (key.match(/^[0-9\.e\$\%]$/)) {
         enterOperand(key);
     }
 
