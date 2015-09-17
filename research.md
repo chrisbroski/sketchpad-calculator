@@ -72,11 +72,18 @@ As far as I can guess, adding backspace and mobile UI could make this a viable v
 
 The new UI is promising, and probably worth spending the time to make a proper version.
 
-Creating Version 1.0
-====================
+Finalizing Version 1.0
+======================
 
-May I present the latest <a href="http://chrisbroski.github.io/sketchpad-calculator/">Sketchpad Calculator</a>. There are no colors or fancy logos yet, but I strived to make it look nice in a simple fashion. It should look very different than the original proof-of-concept, and that's a good thing. PoCs should only be made to test specific features quickly. If your final product is not significantly different, then I question how much was learned from the initial prototype.
+The <a href="http://chrisbroski.github.io/sketchpad-calculator/wire">final wireframe</a> was designed for mobile with a backspace key and usable numberpad. I made the results round to a precision of 8 digits and trimmed trailing zeros after the decimal, unless the dollar sign ($) or scientific notation (×10<sup>x</sup>) is in a term in the calculation. If a dollar sign is included in any term, it will always round to the nearest penny. If any term is scientific notation, they it will round to the precision of the least precise term. I added a manifest and other meta-tags to allow it to be added to the home screen of a mobile device. 
 
-Like I wanted, I added a backspace feature and a touchscreen keypad. I narrowed down 3 rounding options: a default that is close to what typical calculators do (8 numbers of precision and trimming trailing zeros after the decimal point) true scientific (round to the precision of the least precise number) and a fixed two places after the decimal point for monetary math.
+Finally Adding Decoration
+=========================
 
-I tested the UI on a iPhone 4 and an LG Intuition (5" 4x3 phablet) gave it an application cache and enabled it to be added to the home screen to run as a standalone app in mobile Safari and Chrome for Android. (The default Android browser doesn't allow adding web app icons to the home screen.) It is good enough for me to use it as my main calculator, and I am a pretty picky customer, especially about my own work.
+Developing using wireframes does not mean that superfluous styles will never be added to the UI, only that the decoration happens at the end. I want to eventualy add this to mobile app stores, so this is a good time to gussy it up for the prom.
+
+First, I looked for a title font appropriate for "Sketchpad Calculator" at <a href="https://www.google.com/fonts">Google Fonts</a>. I chose one that seemed appropriate but it looked lousy so I asked some friends to pick a different one that tuerned out to be much better.
+
+For the keyboard, I did a google image search for "calculator interface" and styled mine to look like everyone else's. If I learned one thing in Junior High School, it's if you want to be cool, imitate the popular kids.
+
+The last thing I did was realign the numberpad to the right side to make it easier to use on large tablets. <a href="http://chrisbroski.github.io/sketchpad-calculator/wire">The final version</a> ended up looking surprisingly professional for DIY graphic design. I even made a <a hrerf="https://play.google.com/store/apps/details?id=com.chaosscape.sketchpadcalc&hl=en">Cordova version for the Google Play store</a>.
