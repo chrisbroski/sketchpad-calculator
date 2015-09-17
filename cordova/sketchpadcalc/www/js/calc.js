@@ -8,8 +8,7 @@ var activeRow = 0,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
     operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''},
     maxLines = 2000,
-    maxPrecision = 8,
-    dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+    maxPrecision = 8;
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
