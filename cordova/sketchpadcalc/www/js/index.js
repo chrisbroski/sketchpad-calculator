@@ -56,28 +56,6 @@ var app = {
 
 /*jslint browser: true, devel: true, sloppy: true */
 
-function keyEnter(e) {
-    var key = e.key || String.fromCharCode(e.keyCode);
-
-    // [-] matches both number and operator
-    handleMinus(key);
-
-    // Operator
-    if (key.match(/^[+*\/]$/)) {
-        enterOperator(key);
-    }
-
-    // Number
-    if (key.match(/^[0-9\.e\$\%]$/)) {
-        enterOperand(key);
-    }
-
-    // Calculate
-    if (e.keyCode === 13 || e.keyCode === 61) {
-        hitEquals();
-    }
-}
-
 function clickEnter(e) {
     var el = getEventTarget(e),
         clickClass = el.className,
