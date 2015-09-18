@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="IE=Edge">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<title>Sketchpad Calculator</title>
+<style>
+html {padding: 5px; font-family: droid sans, sans-serif; }
+h1 {margin: 0; padding: 0.4em 0; font-size: 22px; background: #fff; position: fixed; top: 0; }
+#calculator {max-width: 500px; margin: 0 auto; }
+#paper {padding: 2.0em 0 0 0; font: 18px monospace; width: 153px; }
+#paper > div {text-align: right; }
+#paper > div span.operator {padding-right: 0.5em; }
+#paper > div span.operand {cursor: pointer; }
+#paper > div span.operand:hover {color: blue; }
+#paper > div span:last-child {border-right: 1px solid #fff; }
+#paper > div span.cursorOn {border-right: 1px solid #000; }
+#paper > div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
+#paper > div.new {height: 1em; }
+#numberpad {
+    margin: 0; padding: 2px;
+    background: #000;
+    width: 120px;
+    position: fixed; bottom: 10px; left: 57%;
+}
+#numberpad button {
+    margin: 0; padding: 0;
+    -webkit-appearance: none; -webkit-border-radius: 0;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    font: 16px/15px serif;
+    width: 40px; height: 50px;
+    text-align: center;
+}
+#numberpad button:active {background: #ddd; }
+#numberpad button:focus {outline: 0 none; }
+#numberpad button.exponent {font-size: 14px; line-height: 17px; }
+#numberpad button.exponent sup {font-size: 12px; font-style: italic; line-height: 12px; }
+</style>
+
+<body>
+<div id="calculator">
+<h1>Sketchpad Calculator</h1>
+
+<div id="numberpad">
+    <button class="operand">$</button
+    ><button class="mystery" id="rollDice">⚅</button
+    ><button class="operand">π</button
+    
+    ><button class="operator">+</button
+    ><button class="minus">-</button
+    ><button class="backspace">←</button
+    
+    ><button class="operator">×</button
+    ><button class="operator">÷</button
+    ><button class="exponent">×10<sup>x</sup></button
+    
+    ><button class="operand">7</button
+    ><button class="operand">8</button
+    ><button class="operand">9</button
+    
+    ><button class="operand">4</button
+    ><button class="operand">5</button
+    ><button class="operand">6</button
+    
+    ><button class="operand">1</button
+    ><button class="operand">2</button
+    ><button class="operand">3</button
+    
+    ><button class="operand" id="zero">0</button
+    ><button class="operand">.</button
+    ><button class="equals">=</button>
+</div>
+
+<div id="paper"></div>
+</div>
+
+<script>
+/*jslint browser: true, devel: true, sloppy: true */
+var activeRow = 0,
+    paper = document.getElementById('paper'),
+    justCalculated = false,
+    blinkId,
+    blinkerOn = true,
+    operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
+    operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''},
+    maxLines = 2000,
+    maxPrecision = 8,
+    dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+function C$(fldNm) {
+    var oRe = new RegExp("[;\\s]" + fldNm + "=([^;]*)", "i"),
+        fldVal = oRe.exec("; " + document.cookie);
+    if (fldVal) {
+        return decodeURIComponent(fldVal[1]);
+    }
+    return "";
+}
+function addEvent(el, evType, fn, bubble) {
+    bubble = bubble || false;
+    if (el.addEventListener) {
+        el.addEventListener(evType, fn, bubble);
+    } else if (el.attachEvent) {
+        el.attachEvent("on" + evType, fn);
+    }
+}
+function getEventTarget(e) {
+    var targ;
+    targ = e.target || e.srcElement;
+    if (targ.nodeType === 3) { // defeat Safari bug
+        targ = targ.parentNode;
+    }
+    return targ;
+}
+function touchclick(el, func, bubble) {
+    bubble = !!bubble;
+    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
+        el.addEventListener('touchstart', func, bubble);
+    } else {
+        addEvent(el, 'click', func, bubble);
+    }
+}
+function getSpans(rowIndex) {
+    rowIndex = rowIndex || activeRow;
+    return paper.getElementsByTagName('div')[rowIndex].getElementsByTagName('span');
+}
+function cursorBlink(resetBlink) {
+    var cursorSpan = getSpans()[2];
+    if (resetBlink || !blinkerOn) {
+        cursorSpan.className = 'cursorOn';
+        blinkerOn = true;
+    } else {
+        cursorSpan.className = '';
+        blinkerOn = false;
+    }
+    blinkId = window.setTimeout(cursorBlink, 600);
+}
+function makeRow() {
+    var row = document.createElement('div');
+    row.innerHTML = '<span class="operator"></span><span class="operand"></span><span></span>';
+    return row;
+}
+function addRow(className, operatorValue, operandValue) {
+    var newRow = makeRow(), lines;
+    // Stop the blinking
+    window.clearTimeout(blinkId);
+    getSpans()[2].className = '';
+    newRow.className = className || '';
+    if (operatorValue) {
+        newRow.getElementsByTagName('span')[0].innerHTML = operatorValue;
+    }
+    if (operandValue) {
+        newRow.getElementsByTagName('span')[1].innerHTML = operandValue;
+    }
+    // if there are more the maxLines divs, remove the top one
+    lines = paper.getElementsByTagName('div');
+    if (lines.length > maxLines) {
+        paper.removeChild(lines[0]);
+    } else {
+        activeRow = activeRow + 1;
+    }
+    paper.appendChild(newRow);
+    cursorBlink(true);
+    window.scrollTo(0, document.body.scrollHeight);
+}
+function newCalculation() {
+    if (justCalculated) {
+        justCalculated = false;
+        addRow('new');
+        addRow();
+        return true;
+    }
+    return false;
+}
+function isPartialNumber(n) {
+    var aNumPieces;
+    // 1.7976931348623157e+308 to 5e-324
+    if (n === '-' || n === '+' || n === '-.' || n === '.' || n === '$' || n === 'π') {
+        return true;
+    }
+    if (/\$/.test(n)) {
+        if (n.match(/\$/g).length > 1) {
+            return false;
+        }
+        n = n.replace(/\$/g, '');
+    }
+    function isExponent(ex) {
+        // is integer 0 - 99 starting with +, -, or a number
+        var reExponent = /^[\+\-]{0,1}\d{0,2}$/;
+        return reExponent.test(ex);
+    }
+    // partial exponent: (legit full number) + e (+/-) (0 - 99)
+    aNumPieces = n.split('e');
+    if (aNumPieces.length === 2) {
+        return (isNumber(aNumPieces[0]) && isExponent(aNumPieces[1]));
+    }
+    return isNumber(n);
+}
+function countSigFigs(num) {
+    // if this is an integer or pi, return maxPrecision
+    if (/^-?[0-9]+$/.test(num)) {
+        return maxPrecision;
+    }
+    if (num === 'π') {
+        return maxPrecision;
+    }
+    // remove exponents
+    num = num.split('e')[0];
+    // remove decimal and signs
+    num = num.replace(/[\-\.\+]/g, '');
+    // trim leading zeros
+    num = num.replace(/^0*/g, '');
+    return num.length;
+}
+function calcFromArray(aCalc) {
+    var ii, len, total = 0, allInt = true, hasMoney = false, sigFig, minSigFigs = maxPrecision, out;
+    len = aCalc.length;
+    if (len === 1) {
+        return aCalc[0].operand;
+    }
+    // Clean up and find rounding type
+    for (ii = 0; ii < len; ii = ii + 1) {
+        if (!/^-?[0-9]+$/.test(aCalc[ii].operand)) {
+            allInt = false;
+        }
+        if (/\$/.test(aCalc[ii].operand)) {
+            hasMoney = true;
+            aCalc[ii].operand = aCalc[ii].operand.replace(/\$/g, '');
+        }
+        sigFig = countSigFigs(aCalc[ii].operand);
+        if (sigFig > maxPrecision) {
+            sigFig = maxPrecision;
+        }
+        if (minSigFigs === 0 || sigFig < minSigFigs) {
+            minSigFigs = sigFig;
+        }
+        if (aCalc[ii].operand === 'π') {
+            aCalc[ii].operand = Math.PI;
+        }
+    }
+    total = aCalc[0].operand;
+    for (ii = 1; ii < len; ii = ii + 1) {
+        if (aCalc[ii].operator === '+') {
+            total = +total + +aCalc[ii].operand;
+        }
+        if (aCalc[ii].operator === '-') {
+            total = total - aCalc[ii].operand;
+        }
+        if (aCalc[ii].operator === '×') {
+            total = total * aCalc[ii].operand;
+        }
+        if (aCalc[ii].operator === '÷') {
+            total = total / aCalc[ii].operand;
+        }
+    }
+    if (hasMoney) {
+        return '$' + total.toFixed(2);
+    }
+    if (allInt) {
+        out = total.toPrecision(maxPrecision).replace(/0*$/g, '');
+        if (out.slice(-1) === '.') {
+            out = out.slice(0, -1);
+        }
+        return out;
+    }
+    return total.toPrecision(minSigFigs);
+}
+function uiToArray() {
+    var rows, calcArray = [], searchRow = activeRow - 1, spans;
+    rows = paper.getElementsByTagName('div');
+    function trimOperand(num) {
+        var aNum;
+        aNum = num.split('e');
+        aNum[0] = aNum[0].replace(/^0*/g, '');
+        if (aNum.length === 1) {
+            return aNum[0];
+        }
+        if (aNum[1] === "" || aNum[1] === "-" || aNum[1] === "+") {
+            return aNum[0];
+        }
+        return aNum.join('e');
+    }
+    while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
+        spans = rows[searchRow].getElementsByTagName('span');
+        calcArray.unshift({"operator": spans[0].innerHTML, "operand": trimOperand(spans[1].innerHTML)});
+        searchRow = searchRow - 1;
+    }
+    return calcArray;
+}
+function enterOperand(digit, replace) {
+    var spans, currentNumber, newNumber;
+    spans = getSpans();
+    currentNumber = spans[1].innerHTML;
+    // Make sure its a legit number
+    if (replace || justCalculated) {
+        newNumber = digit;
+    } else {
+        newNumber = currentNumber + digit;
+    }
+    // Should be able to have $ at beginning or end, but not middle
+    if (currentNumber.length > 1) {
+        if (currentNumber.slice(0, 1) !== '$' && /\$/.test(currentNumber)) {
+            return;
+        }
+    }
+    if (!isPartialNumber(newNumber)) {
+        return;
+    }
+    if (newCalculation()) {
+        spans = getSpans();
+    }
+    spans[1].innerHTML = newNumber;
+}
+function enterOperator(symbol) {
+    var spans = getSpans();
+    // If there is no number above or on it, exit.
+    if (!spans[1].innerHTML && (activeRow === 0 || !getSpans(activeRow - 1)[1].innerHTML)) {
+        return;
+    }
+    // Or if the number above is possibly, but not yet, legit.
+    if (spans[1].innerHTML === '-' || spans[1].innerHTML === '.' || spans[1].innerHTML === '-.') {
+        return;
+    }
+    justCalculated = false;
+    // if there is already an operator on the active row, replace it
+    if (spans[0].innerHTML && !spans[1].innerHTML) {
+        spans[0].innerHTML = operators[symbol];
+    } else {
+        addRow('', operators[symbol]);
+    }
+}
+function hitEquals() {
+    var val;
+    if (!newCalculation()) {
+        val = getSpans()[1].innerHTML;
+        if (val !== '-' && isPartialNumber(val)) {
+            addRow('equals');
+            addRow('', '', calcFromArray(uiToArray()));
+            justCalculated = true;
+        }
+    }
+}
+function removeOperand() {
+    var spans = getSpans();
+    // If there is no number, or number is a result, exit.
+    if (!spans[1].innerHTML || justCalculated) {
+        return;
+    }
+    // Remove digit on the right
+    spans[1].innerHTML = spans[1].innerHTML.slice(0, -1);
+}
+function isMinusOperand() {
+    var spans = getSpans();
+    if (spans[1].innerHTML.slice(-1) === 'e') {
+        return true;
+    }
+    // if there is a number, treat as operator
+    if (spans[1].innerHTML) {
+        return false;
+    }
+    return true;
+}
+function handleMinus(command) {
+    if (command === '-' || command === 'minus') {
+        if (isMinusOperand()) {
+            enterOperand('-');
+        } else {
+            enterOperator('-');
+        }
+    }
+}
+function supressBrowserHotKeys(e) {
+    // Stop quick search in Firefox
+    if (e.key === '/') {
+        enterOperator('/');
+        e.preventDefault();
+    }
+    // Prevent backspace from acting like the back button
+    if (e.keyCode === 8) {
+        removeOperand();
+        e.preventDefault();
+    }
+}
+function keyEnter(e) {
+    var key = e.key || String.fromCharCode(e.keyCode);
+    // [-] matches both number and operator
+    handleMinus(key);
+    // Operator
+    if (key.match(/^[+*\/]$/)) {
+        enterOperator(key);
+    }
+    // Number
+    if (key.match(/^[0-9\.e\$]$/)) {
+        enterOperand(key);
+    }
+    // Calculate
+    if (e.keyCode === 13 || e.keyCode === 61) {
+        hitEquals();
+    }
+}
+function clickEnter(e) {
+    var el = getEventTarget(e),
+        clickClass = el.className,
+        clickValue = el.innerHTML,
+        roll;
+    if (el.tagName === 'BUTTON') {
+        if (clickClass === 'operand') {
+            enterOperand(clickValue);
+        }
+        handleMinus(clickClass);
+        if (clickClass === 'operator') {
+            enterOperator(operatorSymbols[clickValue]);
+        }
+        if (clickClass === 'equals') {
+            hitEquals();
+        }
+        if (clickClass === 'backspace') {
+            removeOperand();
+        }
+        if (clickClass === 'exponent') {
+            enterOperand('e');
+        }
+        if (clickClass === 'mystery') {
+            roll = Math.ceil(Math.random() * 6).toString(10);
+            document.getElementById('rollDice').innerHTML = dice[roll - 1];
+            enterOperand(roll, true);
+        }
+    } else {
+        enterOperand(clickValue, true);
+    }
+}
+function init() {
+    // attach events
+    addEvent(document.body, 'keydown', supressBrowserHotKeys);
+    addEvent(document.body, 'keypress', keyEnter);
+    addEvent(paper, 'click', clickEnter);
+    touchclick(document.getElementById('numberpad'), clickEnter);
+    // initialize UI
+    paper.appendChild(makeRow());
+    cursorBlink(true);
+}
+init();
+</script>

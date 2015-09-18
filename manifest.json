@@ -1,5 +1,25 @@
 {
-  "name": "Sketchpad Calculator",
-  "display": "standalone",
-  "orientation": "portrait"
+    "name": "Sketchpad Calculator",
+    "display": "standalone",
+    "orientation": "portrait",
+    "icons":  [
+        {
+            "src": "cordova/sketchpadcalc/www/img/icon-mdpi.png",
+            "sizes": "48x48",
+            "type": "image/png",
+            "density": 1.0
+        },
+        {
+            "src": "cordova/sketchpadcalc/www/img/icon.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "density": 1.5
+        },
+        {
+            "src": "cordova/sketchpadcalc/www/img/icon-xhdpi.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "density": 2.0
+        }
+    ]
 }
