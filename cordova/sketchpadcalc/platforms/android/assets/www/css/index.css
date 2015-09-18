@@ -45,7 +45,7 @@ h1 {
 
 #calculator {max-width: 500px; margin: 0 auto; }
 
-#paper {padding: 40px 0 10px 0; font: 18px monospace; width: 153px; }
+#paper {padding: 40px 0 1em 0; font: 18px monospace; width: 153px; }
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 0.5em; }
 #paper > div span.operand {cursor: pointer; }
