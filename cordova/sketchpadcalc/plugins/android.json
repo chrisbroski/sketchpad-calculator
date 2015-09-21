@@ -19,7 +19,7 @@
     },
     "installed_plugins": {
         "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "com.restfulmvc.sketchpadcalc"
+            "PACKAGE_NAME": "com.chaosscape.sketchpadcalc"
         }
     },
     "dependent_plugins": {}

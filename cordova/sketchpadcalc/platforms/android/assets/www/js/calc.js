@@ -8,8 +8,7 @@ var activeRow = 0,
     operators = {'+': '+', '-': '-', '*': '×', '/': '÷'},
     operatorSymbols = {'+': '+', '-': '-', '×': '*', '÷': '/', '': ''},
     maxLines = 2000,
-    maxPrecision = 8,
-    dice = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+    maxPrecision = 8;
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -44,7 +43,7 @@ function touchclick(el, func, bubble) {
 
 function getSpans(rowIndex) {
     rowIndex = rowIndex || activeRow;
-    return paper.getElementsByTagName('div')[rowIndex].getElementsByTagName('span');
+    return paper.getElementsByTagName('li')[rowIndex].getElementsByTagName('span');
 }
 
 function cursorBlink(resetBlink) {
@@ -61,13 +60,13 @@ function cursorBlink(resetBlink) {
 }
 
 function makeRow() {
-    var row = document.createElement('div');
+    var row = document.createElement('li');
     row.innerHTML = '<span class="operator"></span><span class="operand"></span><span></span>';
     return row;
 }
 
 function addRow(className, operatorValue, operandValue) {
-    var newRow = makeRow(), lines;
+    var newRow = makeRow(), currentCalc, lines;
 
     // Stop the blinking
     window.clearTimeout(blinkId);
@@ -82,14 +81,16 @@ function addRow(className, operatorValue, operandValue) {
     }
 
     // if there are more the maxLines divs, remove the top one
-    lines = paper.getElementsByTagName('div');
+    currentCalc = document.querySelector('#paper ul:last-child');
+    /*lines = paper.getElementsByTagName('li');
     if (lines.length > maxLines) {
         paper.removeChild(lines[0]);
     } else {
         activeRow = activeRow + 1;
-    }
+    }*/
+    activeRow = activeRow + 1;
 
-    paper.appendChild(newRow);
+    currentCalc.appendChild(newRow);
     cursorBlink(true);
     window.scrollTo(0, document.body.scrollHeight);
 }
@@ -97,7 +98,10 @@ function addRow(className, operatorValue, operandValue) {
 function newCalculation() {
     if (justCalculated) {
         justCalculated = false;
-        addRow('new');
+        //addRow('new');
+        //addRow();
+        paper.appendChild(document.createElement('ul'));
+        //document.querySelector('#paper ul').appendChild(makeRow());
         addRow();
         return true;
     }
@@ -225,8 +229,9 @@ function calcFromArray(aCalc) {
 }
 
 function uiToArray() {
-    var rows, calcArray = [], searchRow = activeRow - 1, spans;
-    rows = paper.getElementsByTagName('div');
+    var rows, calcArray = [], searchRow = activeRow - 1, spans, ii, len;
+    //rows = paper.getElementsByTagName('li');
+    rows = document.querySelectorAll('#paper ul:last-child li');
 
     function trimOperand(num) {
         var aNum;
@@ -242,11 +247,19 @@ function uiToArray() {
         return aNum.join('e');
     }
 
-    while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
+    /*while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
         spans = rows[searchRow].getElementsByTagName('span');
         calcArray.unshift({"operator": spans[0].innerHTML, "operand": trimOperand(spans[1].innerHTML)});
         searchRow = searchRow - 1;
+    }*/
+    len = rows.length;
+    for (ii = 0; ii < len; ii = ii + 1) {
+        if (rows[ii].className !== 'equals') {
+            spans = rows[ii].getElementsByTagName('span');
+            calcArray.push({"operator": spans[0].innerHTML, "operand": trimOperand(spans[1].innerHTML)});
+        }
     }
+    //console.log(calcArray);
 
     return calcArray;
 }
@@ -316,8 +329,8 @@ function hitEquals() {
     if (!newCalculation()) {
         val = getSpans()[1].innerHTML;
         if (val !== '-' && isPartialNumber(val)) {
-            addRow('equals');
-            addRow('', '', calcFromArray(uiToArray()));
+            //addRow('equals');
+            addRow('equals', '', calcFromArray(uiToArray()));
             justCalculated = true;
         }
     }

@@ -33,7 +33,7 @@ body {
 }
 html {padding: 2%; font-family: droid sans, sans-serif; }
 h1 {
-    margin: 0; padding: 0.4em 0;
+    margin: 0; padding: 0.6em 0 0.4em;
     font: 36px/0.6em sketch;
     background: #fff;
     position: fixed; top: 0; left: 0;
@@ -43,22 +43,19 @@ h1 {
     color: #333;
 }
 
-#calculator {max-width: 500px; margin: 0 auto; }
-
-#paper {padding: 40px 0 10px 0; font: 18px monospace; width: 153px; }
-#paper > div {text-align: right; }
-#paper > div span.operator {padding-right: 0.5em; }
-#paper > div span.operand {cursor: pointer; }
-#paper > div span.operand:hover {color: blue; }
-#paper > div span:last-child {border-right: 1px solid #fff; }
-#paper > div span.cursorOn {border-right: 1px solid #000; }
-#paper > div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
-#paper > div.new {height: 1em; }
+#paper {margin-right: 130px; padding: 50px 0 1em 0; font: 18px monospace; overflow: auto; }
+#paper > ul {float: left; width: 160px; margin: 0.5em 0; padding: 0; }
+#paper > ul li {margin:0; padding: 0; list-style: none; text-align: right; }
+#paper > ul li span.operator {padding-right: 0.5em; }
+#paper > ul li span.operand {cursor: pointer; }
+#paper > ul li span.operand:hover {color: blue; }
+#paper > ul li span:last-child {border-right: 1px solid #fff; }
+#paper > ul li span.cursorOn {border-right: 1px solid #000; }
+#paper > ul li.equals {border-top: 1px solid #000; }
 
 #numberpad {
-    margin: 0; padding: 2px;
     width: 120px;
-    position: fixed; bottom: 10px; right: 10px;
+    position: fixed; bottom: 8px; right: 8px;
 }
 #numberpad button {
     margin: 0; padding: 0;
