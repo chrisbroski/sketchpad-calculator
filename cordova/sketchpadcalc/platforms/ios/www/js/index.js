@@ -38,7 +38,8 @@ var app = {
         
         // initialize UI
         paper = document.getElementById('paper');
-        paper.appendChild(makeRow());
+        //paper.appendChild(makeRow());
+        document.querySelector('#paper ul').appendChild(makeRow());
         cursorBlink(true);
     },
     // Update DOM on a Received Event
