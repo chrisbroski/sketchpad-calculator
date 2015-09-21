@@ -45,7 +45,7 @@
     ><button class="equals">=</button>
 </div>
 
-<div id="paper"></div>
+<div id="paper"><ul></ul></div>
 </div>
 
 <script src="cordova/sketchpadcalc/www/js/calc.js"></script>
@@ -122,7 +122,7 @@ function init() {
     touchclick(document.getElementById('numberpad'), clickEnter);
 
     // initialize UI
-    paper.appendChild(makeRow());
+    document.querySelector('#paper ul').appendChild(makeRow());
     cursorBlink(true);
 }
 

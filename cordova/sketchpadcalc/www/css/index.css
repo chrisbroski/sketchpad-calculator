@@ -43,7 +43,7 @@ h1 {
     color: #333;
 }
 
-#paper {margin-right: 140px; padding: 50px 0 1em 0; font: 18px monospace; /*width: 163px;*/ float: right; }
+#paper {margin-right: 140px; padding: 50px 0 1em 0; font: 18px monospace; /*width: 163px;*/ float: right; overflow: auto; }
 #paper > div {text-align: right; }
 #paper > div span.operator {padding-right: 0.5em; }
 #paper > div span.operand {cursor: pointer; }
@@ -52,6 +52,15 @@ h1 {
 #paper > div span.cursorOn {border-right: 1px solid #000; }
 #paper > div.equals {height: 0.3em; border-bottom: 1px solid #000; overflow: hidden; }
 #paper > div.new {height: 1em; }
+
+#paper > ul {float: right; width: 160px; }
+#paper > ul li {margin:0; padding: 0; list-style: none; text-align: right; }
+#paper > ul li span.operator {padding-right: 0.5em; }
+#paper > ul li span.operand {cursor: pointer; }
+#paper > ul li span.operand:hover {color: blue; }
+#paper > ul li span:last-child {border-right: 1px solid #fff; }
+#paper > ul li span.cursorOn {border-right: 1px solid #000; }
+#paper > ul li.equals {border-top: 1px solid #000; }
 
 #numberpad {
     margin: 0; padding: 2px;
