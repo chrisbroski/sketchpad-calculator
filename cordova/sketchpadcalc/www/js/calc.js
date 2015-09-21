@@ -98,10 +98,7 @@ function addRow(className, operatorValue, operandValue) {
 function newCalculation() {
     if (justCalculated) {
         justCalculated = false;
-        //addRow('new');
-        //addRow();
         paper.appendChild(document.createElement('ul'));
-        //document.querySelector('#paper ul').appendChild(makeRow());
         addRow();
         return true;
     }
@@ -172,7 +169,6 @@ function calcFromArray(aCalc) {
 
     // Clean up and find rounding type
     for (ii = 0; ii < len; ii = ii + 1) {
-        //if (!/^-?[0-9]+$/.test(aCalc[ii].operand)) {
         if (/e/.test(aCalc[ii].operand)) {
             allInt = false;
         }
@@ -230,7 +226,6 @@ function calcFromArray(aCalc) {
 
 function uiToArray() {
     var rows, calcArray = [], searchRow = activeRow - 1, spans, ii, len;
-    //rows = paper.getElementsByTagName('li');
     rows = document.querySelectorAll('#paper ul:last-child li');
 
     function trimOperand(num) {
@@ -247,11 +242,6 @@ function uiToArray() {
         return aNum.join('e');
     }
 
-    /*while (searchRow >= 0 && rows[searchRow].className !== 'equals' && rows[searchRow].className !== 'new') {
-        spans = rows[searchRow].getElementsByTagName('span');
-        calcArray.unshift({"operator": spans[0].innerHTML, "operand": trimOperand(spans[1].innerHTML)});
-        searchRow = searchRow - 1;
-    }*/
     len = rows.length;
     for (ii = 0; ii < len; ii = ii + 1) {
         if (rows[ii].className !== 'equals') {
@@ -259,7 +249,6 @@ function uiToArray() {
             calcArray.push({"operator": spans[0].innerHTML, "operand": trimOperand(spans[1].innerHTML)});
         }
     }
-    //console.log(calcArray);
 
     return calcArray;
 }
@@ -329,7 +318,6 @@ function hitEquals() {
     if (!newCalculation()) {
         val = getSpans()[1].innerHTML;
         if (val !== '-' && isPartialNumber(val)) {
-            //addRow('equals');
             addRow('equals', '', calcFromArray(uiToArray()));
             justCalculated = true;
         }

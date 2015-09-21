@@ -17,7 +17,8 @@
  * under the License.
  */
 * {
-    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+    /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 body {
@@ -27,11 +28,13 @@ body {
     height: 100%;
     margin: 0; padding: 0;
 }
+
+/* My CSS */
 @font-face {
     font-family: "sketch";
     src: url("AmaticSC-Regular.ttf") format("opentype");   
 }
-html {padding: 2%; font-family: droid sans, sans-serif; }
+html {padding: 2%; }
 h1 {
     margin: 0; padding: 0.6em 0 0.4em;
     font: 36px/0.6em sketch;
