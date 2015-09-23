@@ -221,7 +221,8 @@ function calcFromArray(aCalc) {
         }
         return out;
     }
-    return total.toPrecision(minSigFigs);
+
+    return total.toExponential(minSigFigs - 1);
 }
 
 function uiToArray() {
@@ -264,7 +265,7 @@ function enterOperand(digit, replace) {
     } else {
         newNumber = currentNumber + digit;
     }
-    console.log(currentNumber, newNumber);
+
     // Should be able to have $ at beginning or end, but not middle
     if (currentNumber.length > 1) {
         if (currentNumber.slice(0, 1) !== '$' && /\$/.test(currentNumber)) {
