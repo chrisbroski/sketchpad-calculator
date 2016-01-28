@@ -15,5 +15,10 @@
         <preference name="orientation" value="portrait" />
     </platform>
     <platform name="ios">
+        <icon src="www/img/icon-180.png" width="180" height="180" />
+        <icon src="www/img/icon-60.png" width="60" height="60" />
+        <icon src="www/img/icon-120.png" width="120" height="120" />
+        <icon src="www/img/icon-76.png" width="76" height="76" />
+        <icon src="www/img/icon-152.png" width="152" height="152" />
     </platform>
 </widget>
