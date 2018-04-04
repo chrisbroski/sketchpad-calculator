@@ -215,11 +215,7 @@ function calcFromArray(aCalc) {
     }
 
     if (allInt) {
-        out = total.toPrecision(maxPrecision).replace(/0*$/g, '');
-        if (out.slice(-1) === '.') {
-            out = out.slice(0, -1);
-        }
-        return out;
+        return parseInt(total).toString(10);
     }
 
     return total.toExponential(minSigFigs - 1);
