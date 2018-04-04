@@ -169,7 +169,7 @@ function calcFromArray(aCalc) {
 
     // Clean up and find rounding type
     for (ii = 0; ii < len; ii = ii + 1) {
-        if (/e/.test(aCalc[ii].operand)) {
+        if (/[e\.]/.test(aCalc[ii].operand)) {
             allInt = false;
         }
         if (/\$/.test(aCalc[ii].operand)) {
