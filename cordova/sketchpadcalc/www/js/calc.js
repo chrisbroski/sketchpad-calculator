@@ -259,7 +259,6 @@ function calcFromArray(aCalc) {
             // total = +total + +aCalc[ii].operand;
             if (!hasMoney && !allInt) {
                 // round to largest final value
-                console.log(total, aCalc[ii].operand);
                 total = addScientific(total, aCalc[ii].operand);
             } else {
                 total = +total + +aCalc[ii].operand;
