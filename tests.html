@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="IE=Edge">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<style>
+* {box-sizing: border-box; }
+html {padding: 10px 10px 200px; font-family: droid sans, sans-serif; }
+body {margin: 0 auto; max-width: 580px; }
+h1 {font-size: 36px; }
+p, h5, input, button {line-height: 1.4em; font-size: 17px; }
+
+dl {
+    margin: 0; padding: 1em;
+    font-family: monospace;
+    background: #efefef;
+}
+dd {
+    margin: 0 0 1em 0;
+}
+
+.passed {
+    color: green;
+}
+.failed {
+    color: red;
+}
+</style>
+
+<title>Sketchpad Calculation Tests</title>
+
+<body>
+<article>
+<h1>Sketchpad Calculation Tests</h1>
+
+<p><button>Run tests</button> <span id="overallResult"></span></p>
+
+<dl></dl>
+</article>
+
+<script src="cordova/sketchpadcalc/www/js/calc.js"></script>
+<script>
+
+var tests = [
+    [[{num: 2}, {op: "+", num: 2}], "4"],
+    [[{num: 32.24, money: true}, {op: "*", num: 1.06, sig: 3}], "$34.17"]
+];
+
+function formatCalc(proper) {
+    if (proper.money) {
+        return "$" +  proper.num.toFixed(2);
+    }
+    if (proper.sig) {
+        return proper.num.toPrecision(sig);
+    }
+    return proper.num.toString(10);
+}
+
+function convertNum(proper) {
+    if (proper.money || proper.sig) {
+        return parseFloat(proper.num);
+    }
+
+    return parseInt(proper.num, 10);
+}
+
+function properCalc(figures) {
+    var runningTotal;
+    if (figures.length < 2) {
+        return formatCalc(figures)
+    }
+    figures.forEach(function (fig, index) {
+        if (index === 0) {
+            runningTotal = convertNum(fig);
+            return;
+        }
+        if (fig.op === "+") {
+            runningTotal = runningTotal + convertNum(fig);
+        }
+        if (fig.op === "-") {
+            runningTotal = runningTotal - convertNum(fig);
+        }
+        if (fig.op === "*") {
+            runningTotal = runningTotal * convertNum(fig);
+        }
+        if (fig.op === "/") {
+            runningTotal = runningTotal / convertNum(fig);
+        }
+    });
+    return runningTotal;
+}
+
+function runTests() {
+    var testResults = document.querySelector("dl"),
+        allPassing = true,
+        test,
+        result;
+
+    tests.forEach(function (t) {
+        var testResult,
+            str = (typeof t[0] === "string") ? '"' : "",
+            test = document.createElement("dt"),
+            result = document.createElement("dd");
+
+        test.textContent = JSON.stringify(t[0]);
+        testResults.appendChild(test);
+
+        try {
+            testResult = "4";
+            //testResult = iterize(t[0]);
+            //result.textContent = JSON.stringify(testResult);
+        } catch(e) {
+            result.textContent = "Exception: " + e;
+            testResult = "exception";
+        }
+        result.textContent = testResult;
+
+        if (testResult === t[1]) {
+            result.className = "passed";
+        } else {
+            result.className = "failed";
+            allPassing = false;
+        }
+        testResults.appendChild(result);
+    });
+
+    if (allPassing) {
+        document.getElementById("overallResult").className = "passed";
+        document.getElementById("overallResult").textContent = "Passed";
+    } else {
+        document.getElementById("overallResult").className = "failed";
+        document.getElementById("overallResult").textContent = "Failed";
+    }
+}
+
+document.querySelector("button").onclick = runTests;
+
+</script>
