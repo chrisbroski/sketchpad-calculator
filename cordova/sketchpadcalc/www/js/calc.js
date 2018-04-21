@@ -196,11 +196,15 @@ function lowestDecimalPlace(num) {
 }
 
 function addScientific(a, b, minus) {
-    var sum;
+    var sum,
+        add1Lowest = lowestDecimalPlace(a),
+        add2Lowest = lowestDecimalPlace(b),
+        addHighest = add1Lowest,
+        mantissa,
+        exponent,
+        roundedMantissa,
+        answer;
 
-    var add1Lowest = lowestDecimalPlace(a);
-    var add2Lowest = lowestDecimalPlace(b);
-    var addHighest = add1Lowest;
     if (add2Lowest > add1Lowest) {
         addHighest = add2Lowest;
     }
@@ -210,10 +214,10 @@ function addScientific(a, b, minus) {
     } else {
         sum = (parseFloat(a) + parseFloat(b)).toExponential();
     }
-    var mantissa = parseFloat(sum.slice(0, sum.indexOf("e")));
-    var exponent = parseInt(sum.slice(sum.indexOf("e") + 1), 10);
-    var roundedMantissa = mantissa.toFixed(exponent - addHighest);
-    var answer = roundedMantissa + "e" + exponent;
+    mantissa = parseFloat(sum.slice(0, sum.indexOf("e")));
+    exponent = parseInt(sum.slice(sum.indexOf("e") + 1), 10);
+    roundedMantissa = mantissa.toFixed(exponent - addHighest);
+    answer = roundedMantissa + "e" + exponent;
 
     return answer;
 }
@@ -256,35 +260,31 @@ function calcFromArray(aCalc) {
     total = aCalc[0].operand;
     for (ii = 1; ii < len; ii = ii + 1) {
         if (aCalc[ii].operator === "+") {
-            // total = +total + +aCalc[ii].operand;
             if (!hasMoney && !allInt) {
-                // round to largest final value
                 total = addScientific(total, aCalc[ii].operand);
             } else {
                 total = +total + +aCalc[ii].operand;
             }
         }
         if (aCalc[ii].operator === "-") {
-            // total = total - aCalc[ii].operand;
             if (!hasMoney && !allInt) {
-                // round to largest final value
                 total = addScientific(total, aCalc[ii].operand, true);
             } else {
-                total = +total + +aCalc[ii].operand;
+                total = total - aCalc[ii].operand;
             }
         }
         if (aCalc[ii].operator === "×") {
             if (hasMoney || allInt) {
                 total = total * aCalc[ii].operand;
             } else {
-                total = (total * aCalc[ii].operand).toExponential(minSigFigs - 1)
+                total = (total * aCalc[ii].operand).toExponential(minSigFigs - 1);
             }
         }
         if (aCalc[ii].operator === "÷") {
             if (hasMoney || allInt) {
                 total = total / aCalc[ii].operand;
             } else {
-                total = (total / aCalc[ii].operand).toExponential(minSigFigs - 1)
+                total = (total / aCalc[ii].operand).toExponential(minSigFigs - 1);
             }
         }
     }
