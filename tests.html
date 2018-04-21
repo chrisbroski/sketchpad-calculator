@@ -43,8 +43,18 @@ dd {
 <script>
 
 var tests = [
-    [[{num: 2}, {op: "+", num: 2}], "4"],
-    [[{num: 32.24, money: true}, {op: "*", num: 1.06, sig: 3}], "$34.17"]
+    [
+        [{num: 2}],
+        "2"
+    ],
+    [
+        [{num: 2}, {op: "+", num: 2}],
+        "4"
+    ],
+    [
+        [{num: 32.24, money: true}, {op: "*", num: 1.06, sig: 3}],
+        "$34.17"
+    ]
 ];
 
 function formatCalc(proper) {
@@ -66,29 +76,32 @@ function convertNum(proper) {
 }
 
 function properCalc(figures) {
-    var runningTotal;
+    var answer = {};
     if (figures.length < 2) {
-        return formatCalc(figures)
+        return figures[0];
     }
     figures.forEach(function (fig, index) {
         if (index === 0) {
-            runningTotal = convertNum(fig);
+            answer.num = convertNum(fig);
             return;
         }
         if (fig.op === "+") {
-            runningTotal = runningTotal + convertNum(fig);
+            answer.num = answer.num + convertNum(fig);
         }
         if (fig.op === "-") {
-            runningTotal = runningTotal - convertNum(fig);
+            answer.num = answer.num - convertNum(fig);
         }
         if (fig.op === "*") {
-            runningTotal = runningTotal * convertNum(fig);
+            answer.num = answer.num * convertNum(fig);
         }
         if (fig.op === "/") {
-            runningTotal = runningTotal / convertNum(fig);
+            answer.num = answer.num / convertNum(fig);
         }
     });
-    return runningTotal;
+    if (figures.some(function (f) {return f.money; })) {
+        answer.money = true;
+    }
+    return answer;
 }
 
 function runTests() {
@@ -107,9 +120,7 @@ function runTests() {
         testResults.appendChild(test);
 
         try {
-            testResult = "4";
-            //testResult = iterize(t[0]);
-            //result.textContent = JSON.stringify(testResult);
+            testResult = formatCalc(properCalc(t[0]));
         } catch(e) {
             result.textContent = "Exception: " + e;
             testResult = "exception";
