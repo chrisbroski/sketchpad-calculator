@@ -43,6 +43,7 @@ dd {
 <script>
 
 var tests = [
+    // Integer math
     [
         [{num: 2}],
         "2"
@@ -64,12 +65,21 @@ var tests = [
         "1"
     ],
     [
+        [{num: 5}, {op: "/", num: 3}, {op: "+", num: 3}],
+        "4"
+    ],
+    // Money
+    [
         [{num: 32.24, money: true}, {op: "*", num: 1.06, sig: 3}],
         "$34.17"
     ],
     [
         [{num: 3.224e1, sig: 4}, {op: "*", num: 1.06, sig: 3}],
         "3.42e+1"
+    ],
+    [
+        [{num: 3.224e1, sig: 4}, {op: "*", num: 2}],
+        "6.448e+1"
     ]
 ];
 
@@ -91,16 +101,27 @@ function preciseToNum(pcFigure) {
     return parseInt(pcFigure.num, 10);
 }
 
+function minSigFigs(figures) {
+    var sig = figures.reduce(function (acc, f) {
+        if (!f.sig) {
+            return acc;
+        }
+        if (f.sig < acc) {
+            return f.sig;
+        }
+    }, maxPrecision + 1);
+    if (sig > maxPrecision) {
+        sig = null;
+    }
+    return sig;
+}
+
 function preciseCalc(figures) {
     var answer = {};
     if (figures.length < 2) {
         return figures[0];
     }
-    answer.sig = figures.reduce(function (acc, f) {
-        if (f.sig || f.sig < acc) {
-            return f.sig;
-        }
-    });
+    answer.sig = minSigFigs(figures);
     if (figures.some(function (f) {return f.money; })) {
         answer.money = true;
     }
