@@ -52,55 +52,81 @@ var tests = [
         "4"
     ],
     [
+        [{num: 4}, {op: "-", num: 3}],
+        "1"
+    ],
+    [
+        [{num: 4}, {op: "*", num: 2}],
+        "8"
+    ],
+    [
+        [{num: 5}, {op: "/", num: 3}],
+        "1"
+    ],
+    [
         [{num: 32.24, money: true}, {op: "*", num: 1.06, sig: 3}],
         "$34.17"
+    ],
+    [
+        [{num: 3.224e1, sig: 4}, {op: "*", num: 1.06, sig: 3}],
+        "3.42e+1"
     ]
 ];
 
-function formatCalc(proper) {
-    if (proper.money) {
-        return "$" +  proper.num.toFixed(2);
+function formatPrecise(pcFigure) {
+    if (pcFigure.money) {
+        return "$" +  pcFigure.num.toFixed(2);
     }
-    if (proper.sig) {
-        return proper.num.toPrecision(sig);
+    if (pcFigure.sig) {
+        return pcFigure.num.toExponential(pcFigure.sig - 1);
     }
-    return proper.num.toString(10);
+    return pcFigure.num.toString(10);
 }
 
-function convertNum(proper) {
-    if (proper.money || proper.sig) {
-        return parseFloat(proper.num);
+function preciseToNum(pcFigure) {
+    if (pcFigure.money || pcFigure.sig) {
+        return parseFloat(pcFigure.num);
     }
 
-    return parseInt(proper.num, 10);
+    return parseInt(pcFigure.num, 10);
 }
 
-function properCalc(figures) {
+function preciseCalc(figures) {
     var answer = {};
     if (figures.length < 2) {
         return figures[0];
     }
-    figures.forEach(function (fig, index) {
-        if (index === 0) {
-            answer.num = convertNum(fig);
-            return;
-        }
-        if (fig.op === "+") {
-            answer.num = answer.num + convertNum(fig);
-        }
-        if (fig.op === "-") {
-            answer.num = answer.num - convertNum(fig);
-        }
-        if (fig.op === "*") {
-            answer.num = answer.num * convertNum(fig);
-        }
-        if (fig.op === "/") {
-            answer.num = answer.num / convertNum(fig);
+    answer.sig = figures.reduce(function (acc, f) {
+        if (f.sig || f.sig < acc) {
+            return f.sig;
         }
     });
     if (figures.some(function (f) {return f.money; })) {
         answer.money = true;
     }
+    figures.forEach(function (fig, index) {
+        if (index === 0) {
+            answer.num = preciseToNum(fig);
+            return;
+        }
+        if (fig.op === "+") {
+            answer.num = answer.num + preciseToNum(fig);
+        }
+        if (fig.op === "-") {
+            answer.num = answer.num - preciseToNum(fig);
+        }
+        if (fig.op === "*") {
+            answer.num = answer.num * preciseToNum(fig);
+        }
+        if (fig.op === "/") {
+            if (Number.isInteger(answer.num) && !answer.money && !fig.sig) {
+                answer.num = Math.floor(answer.num / fig.num);
+                return;
+            }
+            answer.num = answer.num / preciseToNum(fig);
+        }
+    });
+
     return answer;
 }
 
@@ -120,12 +146,15 @@ function runTests() {
         testResults.appendChild(test);
 
         try {
-            testResult = formatCalc(properCalc(t[0]));
+            testResult = formatPrecise(preciseCalc(t[0]));
+            result.textContent = JSON.stringify(testResult);
         } catch(e) {
+            if (e.stack) {
+                console.log(e.stack);
+            }
             result.textContent = "Exception: " + e;
             testResult = "exception";
         }
-        result.textContent = testResult;
 
         if (testResult === t[1]) {
             result.className = "passed";
